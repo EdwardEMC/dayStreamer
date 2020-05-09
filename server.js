@@ -31,13 +31,8 @@ if (process.env.NODE_ENV === "production") {
   app.use(express.static("client/build"));
 }
 
-// Area to handle user pool
-
-
 // Socket.io configuration
-io.on('connection', function(socket){
-
-});
+require("./socket/socketOptions.js")(io);
 
 // Define API routes here
 require("./routes/api-routes.js")(app);
