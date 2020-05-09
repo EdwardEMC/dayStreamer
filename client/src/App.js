@@ -1,5 +1,6 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch, Redirect } from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch} from "react-router-dom";
+// import { BrowserRouter as Router, Route, Switch, Redirect } from "react-router-dom";
 
 // Pre login pages
 import Login from "./pages/Login";
@@ -33,16 +34,17 @@ function App() {
       <Switch>
         <Route exact path="/" component={Login} />
         <Route exact path="/register" component={Register} />
-        <AuthenticatedRoute component={NavRoutes} />
+        <Route component={NavRoutes} />
+        {/* <AuthenticatedRoute component={NavRoutes} /> */}
       </Switch>
     </Router>
   );
 };
 
-const AuthenticatedRoute = ({ component: Component, ...rest }) => (
-  <Route {...rest} render={props => (
-    localStorage.getItem("jwtToken") ? <Component {...props}/> : <Redirect to={{pathname: '/'}}/>
-  )}/>
-);
+// const AuthenticatedRoute = ({ component: Component, ...rest }) => (
+//   <Route {...rest} render={props => (
+//     localStorage.getItem("jwtToken") ? <Component {...props}/> : <Redirect to={{pathname: '/'}}/>
+//   )}/>
+// );
 
 export default App;

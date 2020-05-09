@@ -4,8 +4,7 @@ import DashDoc from "../../components/Dashboard/DashDoc";
 class Documentation extends Component {
   render() {
     return (
-      // <DashDoc />
-      <h1>Documentation</h1>
+      <DashDoc />
     );
   };
 };
