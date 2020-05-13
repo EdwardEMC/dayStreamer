@@ -5,7 +5,5 @@ const passport = require("../config/passport");
 // Area to handle user pool
 
 module.exports = function(io) {
-  io.on('connection', function(socket){
-
-  });
+  
 };

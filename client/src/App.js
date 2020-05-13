@@ -8,7 +8,7 @@ import Register from "./pages/Register";
 
 // Site pages
 import Header from "./components/Header";
-import Main from "./pages/Dashboard/Main";
+import Profile from "./pages/Dashboard/Profile";
 import Chat from "./pages/Dashboard/Chat";
 import Settings from "./pages/Dashboard/Settings";
 import Map from "./pages/Dashboard/Map";
@@ -19,7 +19,7 @@ const NavRoutes = () => {
       <Header />
       <div>
         <Route exact path="/map" component={Map} />
-        <Route exact path="/main" component={Main} />
+        <Route exact path="/profile" component={Profile} />
         <Route exact path="/chat" component={Chat} />
         <Route exact path="/settings" component={Settings} />
       </div>

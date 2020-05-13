@@ -32,7 +32,85 @@ if (process.env.NODE_ENV === "production") {
 }
 
 // Socket.io configuration
-require("./socket/socketOptions.js")(io);
+// require("./socket/socketOptions.js")(io);
+
+let activeSockets = [];
+
+// area to put name spaces
+// let nameSpaces = [];
+
+io.on("connection", socket => {
+  console.log(`User connected: ${socket.id}`);
+
+  const existingSocket = activeSockets.find(
+    existingSocket => existingSocket === socket.id
+  );
+
+  if (!existingSocket) {
+    activeSockets.push({name: socket.handshake.query.name, socket: socket.id});
+    socket.emit("update-user-list", {
+      //crashes on none left
+      users: activeSockets.filter(
+        existingSocket => existingSocket.socket !== socket.id
+      )
+    });
+
+    let data = {
+      name: socket.handshake.query.name,
+      socket: socket.id
+    }
+
+    socket.broadcast.emit("update-user-list", {
+      users: [data]
+    });
+  }
+
+  socket.on("call-user", (data) => {
+    socket.to(data.to).emit("call-made", {
+      offer: data.offer,
+      socket: socket.id
+    });
+  });
+
+  socket.on("make-answer", data => {
+    socket.to(data.to).emit("answer-made", {
+      socket: socket.id,
+      answer: data.answer
+    });
+  });
+
+  socket.on("reject-call", data => {
+    socket.to(data.from).emit("call-rejected", {
+      socket: socket.id
+    });
+  });
+
+  socket.on("hang-up", data => {
+    console.log(data);
+    socket.to(data).emit("hang-up");
+  });
+
+  socket.on("disconnect", () => {
+    activeSockets = activeSockets.filter(
+      existingSocket => existingSocket.socket !== socket.id
+    );
+    socket.broadcast.emit("remove-user", {
+      socketId: socket.id
+    });
+
+    socket.leaveAll();
+
+    console.log(`User disconnected: ${socket.id}`);
+  });
+
+  socket.on("chat-message", data => {
+    console.log(data);
+    socket.to(data.to).emit("chat-sent", {
+      msg: data,
+      socket: socket.id
+    });
+  });
+});
 
 // Define API routes here
 require("./routes/api-routes.js")(app);
@@ -42,7 +120,6 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "./client/build/index.html"));
 });
 
-// Sync the database and start server listening on PORT
 db.sequelize.sync().then(function() {
   server.listen(PORT, function() {
     console.log("App listening on http://localhost:" + PORT);

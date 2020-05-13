@@ -31,7 +31,7 @@ class LoginForm extends Component {
       const token = result.data
       localStorage.setItem('jwtToken', token);
       setAuth(token);
-      window.location.href = "/map";
+      window.location.href = "/chat";
     })
     .catch(err => {
       console.log(err);

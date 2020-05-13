@@ -1,12 +1,12 @@
 import React from "react";
 import "./style.css";
 
-function DashMain() {
+function DashProfile() {
   return (
     <div>
-      DashMain
+      DashProfile
     </div>
   );
 };
 
-export default DashMain;
+export default DashProfile;
