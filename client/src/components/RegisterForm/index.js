@@ -1,12 +1,16 @@
 import React, { Component } from "react";
+import API from "../utils/API";
+import { Link } from "react-router-dom";
 import "./style.css";
 
 class RegistrationForm extends Component {
   // Setting the component's initial state
   state = {
+    username: "",
     name: "",
     email: "",
-    password: ""
+    password: "",
+    namespace: ""
   };
 
   handleInputChange = event => {
@@ -26,14 +30,36 @@ class RegistrationForm extends Component {
   handleFormSubmit = e => {
     e.preventDefault();
 
-    console.log(this.state, "STATE");
-    // API call to login user
+    // API call to register user
+    const data = {
+      username: this.state.username,
+      email: this.state.email,
+      name: this.state.name,
+      password: this.state.password,
+      namespace: this.state.namespace
+    };
+  
+    API.newUser(data)
+    .then(result => {
+      if(result.data === "user.userName must be unique") {
+        document.getElementById("usernameInUse").innerHTML = "Username already in use";
+      }
+      else if(result.data === "user.email must be unique") {
+        document.getElementById("emailInUse").innerHTML = "Email already in use";
+      }
+      else {
+        window.location.href = "/";
+      }
+    })
+    .catch(err => console.log(err));     
 
     // Clears the state for the next submission
     this.setState({
+      userName: "",
       name: "",
       email: "",
-      password: ""
+      password: "",
+      namespace: ""
     });
   };
 
@@ -41,6 +67,14 @@ class RegistrationForm extends Component {
     return (
       <div>
         <form className="form">
+          <input
+            value={this.state.username}
+            name="userName"
+            onChange={this.handleInputChange}
+            type="text"
+            placeholder="Jonny"
+            required
+          />
           <input
             value={this.state.name}
             name="name"
@@ -65,8 +99,19 @@ class RegistrationForm extends Component {
             placeholder="********"
             required
           />
+          <input
+            value={this.state.namespace}
+            name="namespace"
+            onChange={this.handleInputChange}
+            type="company namespace"
+            placeholder="********"
+            // required
+          />
           <button onClick={this.handleFormSubmit}>Submit</button>
         </form>
+        <Link to="/">
+          Login
+        </Link>
       </div>
     );
   };

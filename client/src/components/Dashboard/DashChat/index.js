@@ -1,12 +1,12 @@
 import React from "react";
 import "./style.css";
 
-function DashDoc() {
+function DashChat() {
   return (
     <div>
-      DashDoc
+      DashChat
     </div>
   );
 };
 
-export default DashDoc;
+export default DashChat;

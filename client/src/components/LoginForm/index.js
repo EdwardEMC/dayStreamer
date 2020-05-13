@@ -1,4 +1,7 @@
 import React, { Component } from "react";
+import API from "../utils/API";
+import setAuth from "../utils/setAuth";
+import { Link } from "react-router-dom";
 import "./style.css";
 
 class LoginForm extends Component {
@@ -22,11 +25,39 @@ class LoginForm extends Component {
     });
   };
 
+  userAuth = () => {
+    API.verify()
+    .then(result => {
+      const token = result.data
+      localStorage.setItem('jwtToken', token);
+      setAuth(token);
+      window.location.href = "/map";
+    })
+    .catch(err => {
+      console.log(err);
+    });
+  };
+
   handleFormSubmit = e => {
     e.preventDefault();
 
-    console.log(this.state, "STATE");
     // API call to login user
+    API.loginCheck({
+      email: this.state.email,
+      password: this.state.password
+    })
+    .then(result => {
+      if(result.data === "Incorrect password.") {
+        return document.getElementById("error-msg").innerHTML = "Password Incorrect!";  
+      }
+      else if (result.data === "Incorrect email.") {
+        return document.getElementById("error-msg").innerHTML = "Email Address Does Not Exist!";
+      }
+      else {
+        this.userAuth();
+      }
+    })
+    .catch(err => console.log(err));
 
     this.setState({
       name: "",
@@ -57,6 +88,10 @@ class LoginForm extends Component {
           />
           <button onClick={this.handleFormSubmit}>Submit</button>
         </form>
+        <p id="error-msg"></p>
+        <Link to="/register">
+          Sign Up
+        </Link>
       </div>
     );
   };

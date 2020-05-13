@@ -1,12 +1,12 @@
 import React from "react";
 import "./style.css";
 
-function DashContact() {
+function DashMap() {
   return (
     <div>
-      DashContact
+      DashMap
     </div>
   );
 };
 
-export default DashContact;
+export default DashMap;

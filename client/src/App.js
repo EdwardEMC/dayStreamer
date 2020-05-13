@@ -9,24 +9,23 @@ import Register from "./pages/Register";
 // Site pages
 import Header from "./components/Header";
 import Main from "./pages/Dashboard/Main";
-import Documentation from "./pages/Dashboard/Documentation";
+import Chat from "./pages/Dashboard/Chat";
 import Settings from "./pages/Dashboard/Settings";
-import Contact from "./pages/Dashboard/Contact";
+import Map from "./pages/Dashboard/Map";
 
 const NavRoutes = () => {
   return (
     <div>
       <Header />
       <div>
+        <Route exact path="/map" component={Map} />
         <Route exact path="/main" component={Main} />
-        <Route exact path="/documentation" component={Documentation} />
+        <Route exact path="/chat" component={Chat} />
         <Route exact path="/settings" component={Settings} />
-        <Route exact path="/contact" component={Contact} />
       </div>
     </div>
   );
 };
-
 
 function App() {
   return (
