@@ -11,6 +11,10 @@ let getCalled = false;
 let chatName;
 // Shows who is on the other line
 let existingCall;
+
+// For multi-user call
+//let existingCall = [];
+
 // Array to hold currently online friends (relates to the offline/online icons)
 let onlineFriends = [];
 let socket;
@@ -18,8 +22,9 @@ let connected = false;
 
 const { RTCPeerConnection, RTCSessionDescription } = window;
 
+let peerConnection = new RTCPeerConnection();
+
 function DashChat() {
-  let peerConnection = new RTCPeerConnection();
   // user.id for logged in id; user.name for logged in username
   const user = JSON.parse(localStorage.getItem("User"));
 
@@ -372,6 +377,7 @@ function DashChat() {
     document.getElementById("video-space").classList.add("hide");
     document.getElementById("chat-panel").classList.remove("hide");
 
+    peerConnection = new RTCPeerConnection();
     window.location.reload();
   });
 
@@ -513,7 +519,8 @@ function DashChat() {
 
     document.getElementById("video-space").classList.toggle("hide");
     document.getElementById("chat-panel").classList.remove("hide");
-    
+
+    peerConnection = new RTCPeerConnection();
     window.location.reload();
   }
 
@@ -529,13 +536,17 @@ function DashChat() {
         </h2>
         <div id="user-list-panel">
             {/* collapsible panels */}
-            <button onClick={collapse} value="active-user-container" className="panel-title collapsible">Active Users:</button>
-            <div className="active-users-panel content" id="active-user-container">
+            <button onClick={collapse} value="active-user-container" className="panel-title collapsible">Active Users</button>
+            <div className="active-users-panel content hide" id="active-user-container">
               {/* area for active chats */}
             </div>
-            <button onClick={collapse} value="friend-user-container" className="panel-title collapsible">Conversations:</button>
-            <div className="friend-users-panel content" id="friend-user-container">
+            <button onClick={collapse} value="friend-user-container" className="panel-title collapsible">Conversations</button>
+            <div className="friend-users-panel content hide" id="friend-user-container">
               {/* area for friends chats */}
+            </div>
+            <button onClick={collapse} value="other-user-container" className="panel-title collapsible">Other</button>
+            <div className="other-users-panel content hide" id="other-user-container">
+              {/* area for others chats */}
             </div>
           </div>
         </div>
