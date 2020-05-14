@@ -136,10 +136,8 @@ function DashChat() {
 
   function createUserItemContainer(data) {  
     const userContainerEl = document.createElement("div");
-
     const callButtonEl = document.createElement("img");
     const addFriendEl = document.createElement("img");
-
     const usernameEl = document.createElement("p");
 
     userContainerEl.setAttribute("class", "active-user "+ data.socket);
@@ -147,7 +145,7 @@ function DashChat() {
 
     addFriendEl.setAttribute("class", "addFriend-button");
     addFriendEl.setAttribute("src", iconPath + "addFriend.png");
-    addFriendEl.setAttribute("title", "Add Friend");
+    addFriendEl.setAttribute("title", "Start Conversation");
 
     callButtonEl.setAttribute("class", "call-button");
     callButtonEl.setAttribute("src", iconPath + "online.png");
@@ -295,7 +293,7 @@ function DashChat() {
   });
 
   socket.on("friend-request", () => {
-    // Chat this later
+    // Change this later to just a function refresh
     window.location.reload();
   });
 
@@ -303,8 +301,6 @@ function DashChat() {
     let elToRemove;
     let frToRemove;
     let friend = onlineFriends.find(element => element.socket === socketId);
-    
-    // console.log(friend, "FRIEND LEAVING");
 
     // Determine if a friend is
     if(document.getElementById(socketId)) {
@@ -323,7 +319,6 @@ function DashChat() {
       frToRemove.setAttribute("value", "");
       document.getElementById(friend.name + "offline").classList.remove("hide");
       document.getElementById(friend.name + "online").classList.add("hide");
-
       //Filter out friend from onlineFriends
       onlineFriends = onlineFriends.filter(element => {
         return element.socket !== socketId
@@ -343,10 +338,9 @@ function DashChat() {
         });
         return;
       }
-      // console.log(document.getElementsByClassName(data.socket), "BOX TO FOCUS ON");
+
       const userCalling = document.getElementsByClassName(data.socket)
       const elToFocus = userCalling[0].getAttribute("id");
-
       // Show video area and call buttons for the receiver
       document.getElementById("video-space").classList.remove("hide");
 
@@ -379,8 +373,9 @@ function DashChat() {
   });
 
   socket.on("hang-up", () => {
+    console.log("here");
     peerConnection.close();
-    
+
     document.getElementById("video-space").classList.add("hide");
     document.getElementById("chat-panel").classList.remove("hide");
 
@@ -522,6 +517,7 @@ function DashChat() {
     socket.emit("hang-up", {
       to: existingCall
     });
+
     document.getElementById("video-space").classList.toggle("hide");
     document.getElementById("chat-panel").classList.remove("hide");
     
@@ -544,7 +540,7 @@ function DashChat() {
             <div className="active-users-panel content" id="active-user-container">
               {/* area for active chats */}
             </div>
-            <button onClick={collapse} value="friend-user-container" className="panel-title collapsible">Friends:</button>
+            <button onClick={collapse} value="friend-user-container" className="panel-title collapsible">Conversations:</button>
             <div className="friend-users-panel content" id="friend-user-container">
               {/* area for friends chats */}
             </div>

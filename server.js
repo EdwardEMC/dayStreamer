@@ -88,7 +88,9 @@ io.on("connection", socket => {
   });
 
   socket.on("hang-up", data => {
-    socket.to(data.to).emit("hang-up");
+    socket.to(data.to).emit("hang-up", {
+      from: socket.id
+    });
   });
 
   socket.on("disconnect", () => {
