@@ -4,19 +4,15 @@ import io from "socket.io-client";
 import formatTime from "../../utils/formatTime";
 import "./style.css";
 
-//Helpful https://tsh.io/blog/how-to-write-video-chat-app-using-webrtc-and-nodejs/
 const iconPath = process.env.PUBLIC_URL + '/assets/ChatIcons/';
 
 let isAlreadyCalling = false;
 let getCalled = false;
 let chatName;
-
 // Shows who is on the other line
 let existingCall;
-
 // Array to hold currently online friends (relates to the offline/online icons)
 let onlineFriends = [];
-
 let socket;
 let connected = false;
 
@@ -24,9 +20,7 @@ const { RTCPeerConnection, RTCSessionDescription } = window;
 
 function DashChat() {
   let peerConnection = new RTCPeerConnection();
-
-  // user.name for logged in username
-  // user.id for logged in id
+  // user.id for logged in id; user.name for logged in username
   const user = JSON.parse(localStorage.getItem("User"));
 
   //===========================================================================
@@ -51,12 +45,10 @@ function DashChat() {
       usernameEl.setAttribute("class", "username");
       usernameEl.innerHTML = `User: ${name}`;
 
-      // Change offline to an icon
       const offlineEl = document.createElement("img");
-      // Change online to an icon
       const callButtonEl = document.createElement("img");
-      // If online show call button
-      let friend = onlineFriends.find(element => element.name === name);
+  
+      let friend = onlineFriends.find(element => element.name === name); // If online show call button
 
       if(typeof friend !== "undefined" && friend.name === name) {
         userContainerEl.setAttribute("value", friend.socket);
@@ -84,7 +76,7 @@ function DashChat() {
         callButtonEl.setAttribute("title", "Call"); 
       }
 
-      // Add button to delete friend
+      // Add button to delete conversation
 
       callButtonEl.addEventListener("click", () => {
         callUser(document.getElementById(name).getAttribute("value"));
@@ -339,6 +331,7 @@ function DashChat() {
         return;
       }
 
+      existingCall = data.socket;
       const userCalling = document.getElementsByClassName(data.socket)
       const elToFocus = userCalling[0].getAttribute("id");
       // Show video area and call buttons for the receiver
