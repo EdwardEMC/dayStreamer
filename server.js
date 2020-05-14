@@ -51,7 +51,7 @@ io.on("connection", socket => {
   if (!existingSocket) {
     activeSockets.push({name: socket.handshake.query.name, socket: socket.id});
     socket.emit("update-user-list", {
-      //crashes on none left
+      // Check if still crashes on none left
       users: activeSockets.filter(
         existingSocket => existingSocket.socket !== socket.id
       )
@@ -88,8 +88,7 @@ io.on("connection", socket => {
   });
 
   socket.on("hang-up", data => {
-    console.log(data);
-    socket.to(data).emit("hang-up");
+    socket.to(data.to).emit("hang-up");
   });
 
   socket.on("disconnect", () => {
@@ -105,8 +104,13 @@ io.on("connection", socket => {
     console.log(`User disconnected: ${socket.id}`);
   });
 
+  socket.on("friend-added", data => {
+    socket.to(data.to).emit("friend-request", {
+      socket: socket.id
+    });
+  });
+
   socket.on("chat-message", data => {
-    console.log(data);
     socket.to(data.to).emit("chat-sent", {
       msg: data,
       socket: socket.id

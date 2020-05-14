@@ -121,8 +121,6 @@ function DashChat() {
     });
   }
 
-//   // console.log(onlineFriends, "ONLINE FRIEND ARRAY");
-
   function unselectUsersFromList() {
     // clear the message area on active user change
     document.getElementById('messages').innerHTML = "";
@@ -144,7 +142,7 @@ function DashChat() {
 
     const usernameEl = document.createElement("p");
 
-    userContainerEl.setAttribute("class", "active-user");
+    userContainerEl.setAttribute("class", "active-user "+ data.socket);
     userContainerEl.setAttribute("id", data.socket);
 
     addFriendEl.setAttribute("class", "addFriend-button");
@@ -168,9 +166,13 @@ function DashChat() {
       const user = {
         currentUser: data.name
       }
+
       API.newChat(user)
         .then(function(result) {
-          // emit friend added
+          socket.emit("friend-added", {
+            name: data.name,
+            to: data.socket
+          });
           window.location.reload();
         })
         .catch(function(err) {
@@ -224,9 +226,7 @@ function DashChat() {
   //===========================================================================
   // Calling Area
   //===========================================================================
-
   async function callUser(socketId) {
-    //if not working in future look at adding .then(success callback, failed callback)
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(new RTCSessionDescription(offer));
 
@@ -292,6 +292,11 @@ function DashChat() {
   socket.on("update-user-list", ({ users }) => {
     // if on friends list show on chat area
     updateUserList(users);
+  });
+
+  socket.on("friend-request", () => {
+    // Chat this later
+    window.location.reload();
   });
 
   socket.on("remove-user", ({ socketId }) => {
@@ -375,6 +380,7 @@ function DashChat() {
 
   socket.on("hang-up", () => {
     peerConnection.close();
+    
     document.getElementById("video-space").classList.add("hide");
     document.getElementById("chat-panel").classList.remove("hide");
 
@@ -513,8 +519,9 @@ function DashChat() {
   function hangup() {
     peerConnection.close();
 
-    console.log(existingCall);
-    socket.emit("hang-up", existingCall);
+    socket.emit("hang-up", {
+      to: existingCall
+    });
     document.getElementById("video-space").classList.toggle("hide");
     document.getElementById("chat-panel").classList.remove("hide");
     
