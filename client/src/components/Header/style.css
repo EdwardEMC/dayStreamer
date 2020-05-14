@@ -3,7 +3,7 @@
   color: red;
   background: none;
   cursor: pointer;
-  padding-left: none;
+  padding: 0 10px 0 0;
 }
 
 .nav-height {

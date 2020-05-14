@@ -5,7 +5,9 @@ import RegisterForm from "../components/RegisterForm";
 class Register extends Component {
   render() {
     return (
-      <Card title="Register" insert={<RegisterForm />} />
+      <div id="profile">
+        <Card title="Register" insert={<RegisterForm />} />
+      </div>
     );
   };
 };

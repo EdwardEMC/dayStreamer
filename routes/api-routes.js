@@ -18,7 +18,7 @@ module.exports = function(app) {
       where: {
         id: req.user.id
       }
-    }).then(function(dbUser) {
+    }).then(dbUser => {
       if(req.isAuthenticated()) {
         const token = jwt.sign({user: "LoggedIn"}, "Sandwich");
         const data = {
@@ -32,8 +32,38 @@ module.exports = function(app) {
     });
   });
 
+  // route to get data about the logged in user
+  app.get("/api/user/:username", isAuth, function(req, res) {
+    if(req.params.username !== "self") {
+      db.User.findOne({
+        where: {
+          username: req.params.username
+        }
+      })
+      .then(dbUser => {
+        res.json(dbUser);
+      })  
+      .catch(err => {
+        console.log(err);
+      });
+    }
+    else {
+      db.User.findOne({
+        where: {
+          id: req.user.id
+        }
+      })
+      .then(dbUser => {
+        res.json(dbUser);
+      })  
+      .catch(err => {
+        console.log(err);
+      });
+    };
+  });
+
   // route to return a list of all users
-  app.get("/api/user", function(req, res) {
+  app.get("/api/all-users", function(req, res) {
     db.User.findAll({ }).then(function(dbUser) {
       res.json(dbUser);
     });

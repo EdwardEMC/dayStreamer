@@ -20,7 +20,7 @@ const NavRoutes = () => {
       <Header />
       <div className="site-content">
         <Route exact path="/map-type/:map" component={Map} />
-        <Route exact path="/profile" component={Profile} />
+        <Route path="/profile" component={Profile} />
         <Route exact path="/chat" component={Chat} />
         <Route exact path="/projects" component={Project} />
         <Route exact path="/settings" component={Settings} />

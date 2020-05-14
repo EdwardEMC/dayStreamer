@@ -9,6 +9,11 @@ export default {
     return axios.get("/api/verify");
   },
 
+  // gets a users data
+  getUser: function(data) {
+    return axios.get("/api/user/" + data);
+  },
+
   // gets all active chats
   getChats: function() {
     return axios.get("/api/chats");
