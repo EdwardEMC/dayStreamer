@@ -12,15 +12,17 @@ import Profile from "./pages/Dashboard/Profile";
 import Chat from "./pages/Dashboard/Chat";
 import Settings from "./pages/Dashboard/Settings";
 import Map from "./pages/Dashboard/Map";
+import Project from "./pages/Dashboard/Project";
 
 const NavRoutes = () => {
   return (
     <div className="site">
       <Header />
       <div className="site-content">
-        <Route exact path="/map" component={Map} />
+        <Route exact path="/map-type/:map" component={Map} />
         <Route exact path="/profile" component={Profile} />
         <Route exact path="/chat" component={Chat} />
+        <Route exact path="/projects" component={Project} />
         <Route exact path="/settings" component={Settings} />
       </div>
     </div>

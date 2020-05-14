@@ -19,6 +19,11 @@ export default {
     return axios.get("/api/messages/" + data);
   },
 
+  // gets all current map markers
+  getOnlineUsers: function() {
+    return axios.get("/api/markers");
+  },
+
   // logs out the current user
   logOut: function() {
     return axios.get("/logout");
@@ -52,4 +57,8 @@ export default {
   //============================================
   // PUT REQUESTS
   //============================================
+  // Updates a user with their online marker
+  setOnlineMarker: function(data) {
+    return axios.put("/api/user/online", data);
+  },
 };

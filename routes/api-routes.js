@@ -88,8 +88,7 @@ module.exports = function(app) {
 
    // logging out a user
    app.get("/logout", isAuth, function(req, res) {
-    // db.User.update({ lat: null, lng: null }, { // removes online marker
-    db.User.update({}, {
+    db.User.update({ lat: null, lng: null }, { // removes online marker
       where: {
         email: req.session.passport.user.email
       }
@@ -101,7 +100,20 @@ module.exports = function(app) {
     })
     .catch(function(err) {
       console.log(err);
-    })
+    });
+  });
+
+  // route to get all markers
+  app.get("/api/markers", isAuth, function(req, res) { 
+    db.User.findAll({
+      where: {
+        lat: {
+          [Op.not]: null
+        }
+      }
+    }).then(function(dbUser) {
+      res.json(dbUser);
+    });
   });
 
   //===========================================================================
@@ -129,7 +141,7 @@ module.exports = function(app) {
       icon: "Default",
       password: req.body.password,
       namespace: req.body.namespace,
-  })
+    })
     .then(function() {
       res.sendStatus(200);
     })
@@ -156,7 +168,7 @@ module.exports = function(app) {
     .catch(function(err) {
       res.sendStatus(401).json(err);
     });
-  })
+  });
 
   //route to update the message history of a chat
   app.post("/api/messages", isAuth, function(req, res) {
@@ -181,6 +193,30 @@ module.exports = function(app) {
     })
     .catch(function(err) {
       console.log(err);
+    });
+  });
+
+  //===========================================================================
+  // POST REQUESTS
+  //===========================================================================
+
+  // route to PUT (update) a user's online marker (lat, lng)
+  app.put("/api/user/online", isAuth, function(req, res) {
+    db.User.update({
+      lat: req.body.lat,
+      lng: req.body.lng,
+    },
+    {
+      where: {
+        id: req.user.id
+      }
     })
+    .then(function() {
+      console.log("User is now online");
+      res.status(200).end();
+    })
+    .catch(function(err) {
+      res.status(401).json(err);
+    });
   });
 };
