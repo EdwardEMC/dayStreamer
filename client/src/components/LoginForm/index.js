@@ -28,9 +28,10 @@ class LoginForm extends Component {
   userAuth = () => {
     API.verify()
     .then(result => {
-      const token = result.data
+      const token = result.data.token
       localStorage.setItem('jwtToken', token);
       setAuth(token);
+      localStorage.setItem("User", JSON.stringify({name: result.data.user.username, id: result.data.user.id}));
       window.location.href = "/chat";
     })
     .catch(err => {

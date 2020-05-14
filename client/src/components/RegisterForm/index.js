@@ -69,7 +69,7 @@ class RegistrationForm extends Component {
         <form className="form">
           <input
             value={this.state.username}
-            name="userName"
+            name="username"
             onChange={this.handleInputChange}
             type="text"
             placeholder="Jonny"

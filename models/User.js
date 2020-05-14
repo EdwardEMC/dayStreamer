@@ -31,6 +31,14 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING,
       allowNull: true
     },
+    // lat: {
+    //   type: DataTypes.DECIMAL(9,6),
+    //   allowNull: true
+    // },
+    // lng: {
+    //   type: DataTypes.DECIMAL(9,6),
+    //   allowNull: true
+    // }
   },
   {
     freezeTableName: true

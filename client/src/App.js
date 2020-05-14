@@ -15,9 +15,9 @@ import Map from "./pages/Dashboard/Map";
 
 const NavRoutes = () => {
   return (
-    <div>
+    <div className="site">
       <Header />
-      <div>
+      <div className="site-content">
         <Route exact path="/map" component={Map} />
         <Route exact path="/profile" component={Profile} />
         <Route exact path="/chat" component={Chat} />
