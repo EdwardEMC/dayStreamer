@@ -1,5 +1,3 @@
-// Area to handle user pool
-
 module.exports = function(io) {
   let activeSockets = [];
 
@@ -30,7 +28,7 @@ module.exports = function(io) {
       socket.broadcast.emit("update-user-list", {
         users: [data]
       });
-    }
+    };
   
     socket.on("call-user", (data) => {
       socket.to(data.to).emit("call-made", {

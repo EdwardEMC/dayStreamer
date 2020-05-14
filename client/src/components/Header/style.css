@@ -1,0 +1,15 @@
+#logout {
+  border: none;
+  color: red;
+  background: none;
+  cursor: pointer;
+}
+
+#nav-title {
+  border: none;
+  background: none;
+}
+
+nav {
+  max-height: 56px;
+}
