@@ -89,9 +89,7 @@ function DashChat() {
       callButtonEl.addEventListener("click", () => {
         callUser(document.getElementById(name).getAttribute("value"));
         // Show video area and call buttons for the caller
-        // callAccept();
         document.getElementById("video-space").classList.toggle("hide");
-        document.getElementById("call-buttons").classList.toggle("hide");
       });
 
       userContainerEl.append(usernameEl, callButtonEl, offlineEl);
@@ -163,9 +161,7 @@ function DashChat() {
     callButtonEl.addEventListener("click", () => {
       callUser(data.socket);
       // Show video area and call buttons for the caller
-      // callAccept();
-      // document.getElementById("video-space").classList.toggle("hide");
-      // document.getElementById("call-buttons").classList.toggle("hide");
+      document.getElementById("video-space").classList.toggle("hide");
     });
 
     addFriendEl.addEventListener("click", () => {
@@ -347,9 +343,7 @@ function DashChat() {
       const elToFocus = userCalling[0].getAttribute("id");
 
       // Show video area and call buttons for the receiver
-      // callAccept();
-      // document.getElementById("video-space").classList.remove("hide");
-      // document.getElementById("call-buttons").classList.remove("hide");
+      document.getElementById("video-space").classList.remove("hide");
 
       unselectUsersFromList();
       document.getElementById(elToFocus).click();
@@ -381,10 +375,8 @@ function DashChat() {
 
   socket.on("hang-up", () => {
     peerConnection.close();
-    // document.getElementById("video-space").classList.add("hide");
-    // document.getElementById("call-buttons").classList.add("hide");
-    // document.getElementById("message-space").classList.remove("hide");
-    // callAccept();
+    document.getElementById("video-space").classList.add("hide");
+    document.getElementById("chat-panel").classList.remove("hide");
 
     window.location.reload();
   });
@@ -394,9 +386,7 @@ function DashChat() {
     existingCall = "";
     unselectUsersFromList();
     // Hide video area and call buttons for the caller
-    // callAccept();
-    // document.getElementById("video-space").classList.add("hide");
-    // document.getElementById("call-buttons").classList.add("hide");
+    document.getElementById("video-space").classList.add("hide");
   });
 
   peerConnection.ontrack = function({ streams: [stream] }) {
@@ -522,17 +512,11 @@ function DashChat() {
 
   function hangup() {
     peerConnection.close();
-    
-    // won't work if someone switches the chat during call
-    // let user = document.getElementById("talking-with-info").getAttribute("value");
-    // let receiverSocket = document.getElementById(user).getAttribute("value");
 
+    console.log(existingCall);
     socket.emit("hang-up", existingCall);
-
-    // callAccept();
-    // document.getElementById("video-space").classList.toggle("hide");
-    // document.getElementById("call-buttons").classList.toggle("hide");
-    // document.getElementById("message-space").classList.remove("hide");
+    document.getElementById("video-space").classList.toggle("hide");
+    document.getElementById("chat-panel").classList.remove("hide");
     
     window.location.reload();
   }
@@ -541,22 +525,8 @@ function DashChat() {
     document.getElementById(event.target.value).classList.toggle("hide");
   }
 
-//   // Changes screen when called to the right layout and ratio changes back on hang up
-//   function callAccept() {
-//     document.getElementById("header").classList.toggle("hide");
-//     document.getElementById("video-space").classList.toggle("hide");
-//     document.getElementById("send-area").classList.toggle("send-call");
-//     document.getElementById("main-area").classList.toggle("content-container");
-//     document.getElementById("main-area").classList.toggle("content-container-call");
-//     document.getElementById("message-scroll").classList.toggle("display-area");
-//     document.getElementById("message-scroll").classList.toggle("display-area-call");
-//     document.getElementById("message-space").classList.toggle("message-space-call");
-//     document.getElementById("user-panel").classList.toggle("user-panel-call");
-//     document.getElementById("video-streams").classList.toggle("video-container-call");
-//   }
-
   return (
-    <div className="row no-gutters panels">
+    <div className="row no-gutters">
       <div id="user-panel" className="col-lg-3">
         <h2 id="talking-with-info" className="talk-info text-center">
           Select a user.
@@ -573,8 +543,8 @@ function DashChat() {
             </div>
           </div>
         </div>
-      <div className="col-lg">
-        <div id="video-space" className="video-chat-container">
+      <div id="video-space" className="col-lg panels hide">
+        <div className="video-chat-container">
           <div id="video-streams" className="video-container">
             <video autoPlay className="remote-video" id="remote-video"></video>
             <video autoPlay muted className="local-video" id="local-video"></video>
@@ -588,7 +558,7 @@ function DashChat() {
           </div>
         </div>
       </div>
-      <div id="chat-panel" className="col-lg">
+      <div id="chat-panel" className="col-lg panels">
         <div className="main-chat-area">
           <div id="message-scroll" className="display-area">
             <ul id="messages">

@@ -65,50 +65,80 @@ class RegistrationForm extends Component {
 
   render() {
     return (
-      <div>
+      <div className="text-center">
         <form className="form">
-          <input
-            value={this.state.username}
-            name="username"
-            onChange={this.handleInputChange}
-            type="text"
-            placeholder="Jonny"
-            required
-          />
-          <input
-            value={this.state.name}
-            name="name"
-            onChange={this.handleInputChange}
-            type="text"
-            placeholder="John Smith"
-            required
-          />
-          <input
-            value={this.state.email}
-            name="email"
-            onChange={this.handleInputChange}
-            type="text"
-            placeholder="john@gmail.com"
-            required
-          />
-          <input
-            value={this.state.password}
-            name="password"
-            onChange={this.handleInputChange}
-            type="password"
-            placeholder="********"
-            required
-          />
-          <input
-            value={this.state.namespace}
-            name="namespace"
-            onChange={this.handleInputChange}
-            type="company namespace"
-            placeholder="********"
-            // required
-          />
+          <div className="form-group">
+            <label htmlFor="username">Username</label>
+            <br></br>
+            <input
+              className="registration"
+              id="username"
+              value={this.state.username}
+              name="username"
+              onChange={this.handleInputChange}
+              type="text"
+              placeholder="Jonny"
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="name">Name</label>
+            <br></br>
+            <input
+              className="registration"
+              id="name"
+              value={this.state.name}
+              name="name"
+              onChange={this.handleInputChange}
+              type="text"
+              placeholder="John Smith"
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="email">Email Address</label>
+            <br></br>
+            <input
+              className="registration"
+              id="email"
+              value={this.state.email}
+              name="email"
+              onChange={this.handleInputChange}
+              type="text"
+              placeholder="john@gmail.com"
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <br></br> 
+            <input
+              className="registration"
+              id="password"
+              value={this.state.password}
+              name="password"
+              onChange={this.handleInputChange}
+              type="password"
+              placeholder="********"
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="namespace">Namespace</label>
+            <br></br>
+            <input
+              className="registration"
+              id="namespace"
+              value={this.state.namespace}
+              name="namespace"
+              onChange={this.handleInputChange}
+              type="company namespace"
+              placeholder="Optional..."
+            />
+          </div>
           <button onClick={this.handleFormSubmit}>Submit</button>
         </form>
+        <br></br>
         <Link to="/">
           Login
         </Link>

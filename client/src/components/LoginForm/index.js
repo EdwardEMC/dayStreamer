@@ -69,24 +69,37 @@ class LoginForm extends Component {
 
   render() {
     return (
-      <div>
+      <div className="text-center">
         <form className="form">
-          <input
-            value={this.state.email}
-            name="email"
-            onChange={this.handleInputChange}
-            type="text"
-            placeholder="john@gmail.com"
-            required
-          />
-          <input
-            value={this.state.password}
-            name="password"
-            onChange={this.handleInputChange}
-            type="password"
-            placeholder="********"
-            required
-          />
+          <div className="form-group">
+            <label htmlFor="email">Email address</label>
+            <br></br>
+            <input
+              className="login"
+              id="email"
+              value={this.state.email}
+              name="email"
+              onChange={this.handleInputChange}
+              type="text"
+              placeholder="john@gmail.com"
+              required
+            />
+          </div>
+          <br></br>
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <br></br>
+            <input
+              className="login"
+              id="password"
+              value={this.state.password}
+              name="password"
+              onChange={this.handleInputChange}
+              type="password"
+              placeholder="********"
+              required
+            />
+          </div>
           <button onClick={this.handleFormSubmit}>Submit</button>
         </form>
         <p id="error-msg"></p>
