@@ -4,14 +4,17 @@ import io from "socket.io-client";
 import formatTime from "../../utils/formatTime";
 import "./style.css";
 
-// //Helpful https://tsh.io/blog/how-to-write-video-chat-app-using-webrtc-and-nodejs/
+//Helpful https://tsh.io/blog/how-to-write-video-chat-app-using-webrtc-and-nodejs/
 const iconPath = process.env.PUBLIC_URL + '/assets/ChatIcons/';
 
 let isAlreadyCalling = false;
 let getCalled = false;
 let chatName;
 
-// // Array to hold currently online friends (relates to the offline/online icons)
+// Shows who is on the other line
+let existingCall;
+
+// Array to hold currently online friends (relates to the offline/online icons)
 let onlineFriends = [];
 
 let socket;
@@ -235,6 +238,8 @@ function DashChat() {
       offer,
       to: socketId
     });
+
+    existingCall = socketId;
   }
 
   function updateUserList(socketIds) {
@@ -338,15 +343,16 @@ function DashChat() {
         return;
       }
       // console.log(document.getElementsByClassName(data.socket), "BOX TO FOCUS ON");
-      // const userCalling = document.getElementsByClassName(data.socket)
-      // const elToFocus = userCalling[0].getAttribute("id");
+      const userCalling = document.getElementsByClassName(data.socket)
+      const elToFocus = userCalling[0].getAttribute("id");
 
       // Show video area and call buttons for the receiver
       // callAccept();
       // document.getElementById("video-space").classList.remove("hide");
       // document.getElementById("call-buttons").classList.remove("hide");
-      // unselectUsersFromList();
-      // document.getElementById(elToFocus).click();
+
+      unselectUsersFromList();
+      document.getElementById(elToFocus).click();
     };
 
     await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
@@ -380,13 +386,12 @@ function DashChat() {
     // document.getElementById("message-space").classList.remove("hide");
     // callAccept();
 
-    // peerConnection = new RTCPeerConnection();
-    // Needed to fully reset connection
     window.location.reload();
   });
 
   socket.on("call-rejected", data => {
     alert(`User: "Socket: ${data.socket}" rejected your call.`);
+    existingCall = "";
     unselectUsersFromList();
     // Hide video area and call buttons for the caller
     // callAccept();
@@ -421,7 +426,6 @@ function DashChat() {
   //===========================================================================
   function messageDisplay(data) {
     const area = document.getElementById('messages');
-
     const li = document.createElement('li');
     const span = document.createElement('span');
     
@@ -442,7 +446,6 @@ function DashChat() {
   }
 
   socket.on("chat-sent", data => {
-    // console.log(data, "CHAT DATA");
     let active;
     let name;
 
@@ -495,8 +498,6 @@ function DashChat() {
       to: receiver
     }
 
-    // console.log(msg);
-
     // socket emit
     socket.emit("chat-message", msg);
 
@@ -519,21 +520,20 @@ function DashChat() {
     document.getElementById("chat-panel").classList.toggle("hide");
   };
 
-  function videoarea() {
+  function hangup() {
     peerConnection.close();
     
-    let user = document.getElementById("talking-with-info").getAttribute("value");
-    let receiverSocket = document.getElementById(user).getAttribute("value");
+    // won't work if someone switches the chat during call
+    // let user = document.getElementById("talking-with-info").getAttribute("value");
+    // let receiverSocket = document.getElementById(user).getAttribute("value");
 
-    console.log(receiverSocket, "HANG UP AREA");
-
-    socket.emit("hang-up", receiverSocket);
+    socket.emit("hang-up", existingCall);
 
     // callAccept();
     // document.getElementById("video-space").classList.toggle("hide");
     // document.getElementById("call-buttons").classList.toggle("hide");
     // document.getElementById("message-space").classList.remove("hide");
-
+    
     window.location.reload();
   }
 
@@ -580,7 +580,7 @@ function DashChat() {
             <video autoPlay muted className="local-video" id="local-video"></video>
             <div id="options">
               <div id="call-buttons" className="button-container">  
-                <button onClick={videoarea} className="btn btn-danger">Hang Up</button>
+                <button onClick={hangup} className="btn btn-danger">Hang Up</button>
                 <button onClick={userarea} className="button-container btn btn-dark">User List</button>
                 <button onClick={chatarea} className="btn btn-info">Show Chat</button>
               </div>

@@ -160,7 +160,6 @@ module.exports = function(app) {
 
   //route to update the message history of a chat
   app.post("/api/messages", isAuth, function(req, res) {
-    console.log(req.body, "MESSAGE BODY");
     db.Chats.findOne({
       where: {
         chatName: req.body.chatname

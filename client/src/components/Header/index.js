@@ -44,12 +44,12 @@ function Header() {
             </Link>
           </li>
           &emsp;
-          {/* <li className="nav-item">
+          <li className="nav-item">
             <Link to="/projects">
               Projects
             </Link>
           </li> 
-          &emsp;*/}
+          &emsp;
           <li className="nav-item">
             <Link to="/settings">
               Settings
