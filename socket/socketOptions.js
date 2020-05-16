@@ -80,6 +80,9 @@ module.exports = function(io) {
         msg: data,
         socket: socket.id
       });
+      socket.to(data.to).emit("message-notification", {
+        from: data.fromName
+      });
     });
   });
 };

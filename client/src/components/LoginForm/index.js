@@ -32,7 +32,7 @@ class LoginForm extends Component {
       localStorage.setItem('jwtToken', token);
       setAuth(token);
       localStorage.setItem("User", JSON.stringify({name: result.data.user.username, id: result.data.user.id}));
-      window.location.href = "/chat";
+      window.location.href = "/map-type/map";
     })
     .catch(err => {
       console.log(err);

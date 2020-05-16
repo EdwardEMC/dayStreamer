@@ -3,9 +3,34 @@
   color: red;
   background: none;
   cursor: pointer;
-  padding: 0 10px 0 0;
+  padding: 0 0 0 30px;
 }
 
 .nav-height {
   min-height: 66px;
+}
+
+#notification {
+  float: right;
+  margin-top: 10px;
+  max-height: 20px;
+  max-width: 20px;
+}
+
+.nav-link {
+  display: inline;
+}
+
+.hide {
+  display: none;
+}
+
+@media only screen and (max-width: 991px) {
+  #logout {
+    padding: 10px 0 0 0;
+  }
+
+  #search {
+    padding: 10px 0 0 0;
+  }
 }
