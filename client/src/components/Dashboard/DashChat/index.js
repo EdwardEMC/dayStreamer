@@ -10,10 +10,13 @@ let isAlreadyCalling = false;
 let getCalled = false;
 let chatName;
 // Shows who is on the other line
-let existingCall;
+// let existingCall;
 
 // For multi-user call
-//let existingCall = [];
+let existingCall = [];
+
+// For dynamic screen generation
+let videos = 0;
 
 // Array to hold currently online friends (relates to the offline/online icons)
 let onlineFriends = [];
@@ -230,7 +233,7 @@ function DashChat() {
       to: socketId
     });
 
-    existingCall = socketId;
+    existingCall.push(socketId);
   }
 
   function updateUserList(socketIds) {
@@ -336,7 +339,7 @@ function DashChat() {
         return;
       }
 
-      existingCall = data.socket;
+      existingCall.push(data.socket);
       const userCalling = document.getElementsByClassName(data.socket)
       const elToFocus = userCalling[0].getAttribute("id");
       // Show video area and call buttons for the receiver
@@ -383,14 +386,17 @@ function DashChat() {
 
   socket.on("call-rejected", data => {
     alert(`User: "Socket: ${data.socket}" rejected your call.`);
-    existingCall = "";
+
+    let index = existingCall.indexOf(data.socket);
+    existingCall.splice(index, 1);
+
     unselectUsersFromList();
     // Hide video area and call buttons for the caller
     document.getElementById("video-space").classList.add("hide");
   });
 
   peerConnection.ontrack = function({ streams: [stream] }) {
-    const remoteVideo = document.getElementById("remote-video");
+    const remoteVideo = document.getElementById("remote-video" + videos);
     if (remoteVideo) {
       remoteVideo.srcObject = stream;
     }
@@ -513,14 +519,18 @@ function DashChat() {
   function hangup() {
     peerConnection.close();
 
-    socket.emit("hang-up", {
-      to: existingCall
+    existingCall.forEach(call => {
+      socket.emit("hang-up", {
+        to: call
+      });  
     });
-
+    
     document.getElementById("video-space").classList.toggle("hide");
     document.getElementById("chat-panel").classList.remove("hide");
 
     peerConnection = new RTCPeerConnection();
+    // Reset the video count to 0
+    videos = 0;
     window.location.reload();
   }
 
@@ -544,7 +554,7 @@ function DashChat() {
             <div className="friend-users-panel content hide" id="friend-user-container">
               {/* area for friends chats */}
             </div>
-            <button onClick={collapse} value="other-user-container" className="panel-title collapsible">Other</button>
+            <button onClick={collapse} value="other-user-container" className="panel-title collapsible">Team Chats</button>
             <div className="other-users-panel content hide" id="other-user-container">
               {/* area for others chats */}
             </div>
@@ -553,7 +563,7 @@ function DashChat() {
       <div id="video-space" className="col-lg panels hide">
         <div className="video-chat-container">
           <div id="video-streams" className="video-container">
-            <video autoPlay className="remote-video" id="remote-video"></video>
+            <video autoPlay className="remote-video" id={"remote-video" + videos}></video>
             <video autoPlay muted className="local-video" id="local-video"></video>
             <div id="options">
               <div id="call-buttons" className="button-container">  

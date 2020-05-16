@@ -5,7 +5,7 @@ function Card(props) {
   return (
     <div className="container">
       <div className="card">
-        <h2 className="text-center card-header">
+        <h2 className="text-center card-header custom-head-color">
           {props.title}
         </h2>
         <div className="card-body">
