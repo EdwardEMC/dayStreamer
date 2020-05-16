@@ -9,6 +9,8 @@ const iconPath = process.env.PUBLIC_URL + '/assets/ChatIcons/';
 let isAlreadyCalling = false;
 let getCalled = false;
 let chatName;
+// Shows who is on the other line
+// let existingCall;
 
 // For multi-user call
 let existingCall = [];
@@ -24,8 +26,7 @@ let connected = false;
 const { RTCPeerConnection, RTCSessionDescription } = window;
 
 // Need to create a new peerConnection each time a person joins
-let peerConnection;
-// let peerConnection = new RTCPeerConnection();
+let peerConnection = new RTCPeerConnection();
 
 function DashChat() {
   // user.id for logged in id; user.name for logged in username
@@ -234,22 +235,6 @@ function DashChat() {
     // After creating dynamic variable set it to = new RTCPeerConnection();
     // Can create a new peer connection at a increase dynamic variable each time someone is called concurrently
     // Emit an addToStream socket on call accept to other users in current call
-    peerConnection = new RTCPeerConnection();
-
-    navigator.getUserMedia(
-      { video: true, audio: true },
-      stream => {
-        const localVideo = document.getElementById("local-video");
-        if (localVideo) {
-          localVideo.srcObject = stream;
-        }
-  
-        stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
-      },
-      error => {
-        console.warn(error.message);
-      }
-    );
 
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(new RTCSessionDescription(offer));
@@ -393,13 +378,6 @@ function DashChat() {
       new RTCSessionDescription(data.answer)
     );
 
-    peerConnection.ontrack = function({ streams: [stream] }) {
-      const remoteVideo = document.getElementById("remote-video" + videos);
-      if (remoteVideo) {
-        remoteVideo.srcObject = stream;
-      }
-    };
-
     if (!isAlreadyCalling) {
       callUser(data.socket);
       isAlreadyCalling = true;
@@ -427,27 +405,27 @@ function DashChat() {
     document.getElementById("video-space").classList.add("hide");
   });
 
-  // peerConnection.ontrack = function({ streams: [stream] }) {
-  //   const remoteVideo = document.getElementById("remote-video" + videos);
-  //   if (remoteVideo) {
-  //     remoteVideo.srcObject = stream;
-  //   }
-  // };
+  peerConnection.ontrack = function({ streams: [stream] }) {
+    const remoteVideo = document.getElementById("remote-video" + videos);
+    if (remoteVideo) {
+      remoteVideo.srcObject = stream;
+    }
+  };
 
-  // navigator.getUserMedia(
-  //   { video: true, audio: true },
-  //   stream => {
-  //     const localVideo = document.getElementById("local-video");
-  //     if (localVideo) {
-  //       localVideo.srcObject = stream;
-  //     }
+  navigator.getUserMedia(
+    { video: true, audio: true },
+    stream => {
+      const localVideo = document.getElementById("local-video");
+      if (localVideo) {
+        localVideo.srcObject = stream;
+      }
 
-  //     stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
-  //   },
-  //   error => {
-  //     console.warn(error.message);
-  //   }
-  // );
+      stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+    },
+    error => {
+      console.warn(error.message);
+    }
+  );
 
   //===========================================================================
   //===========================================================================
