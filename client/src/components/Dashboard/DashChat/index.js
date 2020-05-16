@@ -204,7 +204,7 @@ function DashChat() {
       span.setAttribute("title", formatTime(element.createdAt));
       span.innerHTML = element.message;
 
-      if(element.userId === data.id) { // Change so that messages do not have a user associated
+      if(element.userId === data.id) {
         li.setAttribute("class", "current");
         span.setAttribute("class", "sent");
       }
@@ -560,10 +560,13 @@ function DashChat() {
             </div>
           </div>
         </div>
-      <div id="video-space" className="col-lg panels hide">
+      <div id="video-space" className="col-lg panels">
         <div className="video-chat-container">
           <div id="video-streams" className="video-container">
-            <video autoPlay className="remote-video" id={"remote-video" + videos}></video>
+            <div className="row no-gutters">
+              <video autoPlay className="remote-video" id={"remote-video" + videos}></video>
+              <video autoPlay className="remote-video" id={"remote-video" + videos}></video>
+            </div>
             <video autoPlay muted className="local-video" id="local-video"></video>
             <div id="options">
               <div id="call-buttons" className="button-container">  
