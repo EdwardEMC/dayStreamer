@@ -236,12 +236,20 @@ function DashChat() {
     // Emit an addToStream socket on call accept to other users in current call
     peerConnection = new RTCPeerConnection();
 
-    peerConnection.ontrack = function({ streams: [stream] }) {
-      const remoteVideo = document.getElementById("remote-video" + videos);
-      if (remoteVideo) {
-        remoteVideo.srcObject = stream;
+    navigator.getUserMedia(
+      { video: true, audio: true },
+      stream => {
+        const localVideo = document.getElementById("local-video");
+        if (localVideo) {
+          localVideo.srcObject = stream;
+        }
+  
+        stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+      },
+      error => {
+        console.warn(error.message);
       }
-    };
+    );
 
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(new RTCSessionDescription(offer));
@@ -385,6 +393,13 @@ function DashChat() {
       new RTCSessionDescription(data.answer)
     );
 
+    peerConnection.ontrack = function({ streams: [stream] }) {
+      const remoteVideo = document.getElementById("remote-video" + videos);
+      if (remoteVideo) {
+        remoteVideo.srcObject = stream;
+      }
+    };
+
     if (!isAlreadyCalling) {
       callUser(data.socket);
       isAlreadyCalling = true;
@@ -419,20 +434,20 @@ function DashChat() {
   //   }
   // };
 
-  navigator.getUserMedia(
-    { video: true, audio: true },
-    stream => {
-      const localVideo = document.getElementById("local-video");
-      if (localVideo) {
-        localVideo.srcObject = stream;
-      }
+  // navigator.getUserMedia(
+  //   { video: true, audio: true },
+  //   stream => {
+  //     const localVideo = document.getElementById("local-video");
+  //     if (localVideo) {
+  //       localVideo.srcObject = stream;
+  //     }
 
-      stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
-    },
-    error => {
-      console.warn(error.message);
-    }
-  );
+  //     stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+  //   },
+  //   error => {
+  //     console.warn(error.message);
+  //   }
+  // );
 
   //===========================================================================
   //===========================================================================
