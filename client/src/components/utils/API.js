@@ -37,7 +37,6 @@ export default {
   //============================================
   // POST REQUESTS
   //============================================
-
   // checks a user logining in
   loginCheck: function(data) {
     return axios.post("/api/login", data);
@@ -65,5 +64,23 @@ export default {
   // Updates a user with their online marker
   setOnlineMarker: function(data) {
     return axios.put("/api/user/online", data);
+  },
+
+  // Updates a user on the database
+  updateUser: function(data) {
+    return axios.put("/api/user", data);
+  },
+
+  // Updates a users lat & lng to make them go offline
+  offline: function() {
+    return axios.put("/api/offline");
+  },
+
+  //============================================
+  // Delete REQUESTS
+  //============================================
+  // Deletes a user
+  deleteUser: function() {
+    return axios.delete("/api/user");
   },
 };

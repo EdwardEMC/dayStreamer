@@ -1,0 +1,43 @@
+#offline {
+  color: red;
+}
+
+.profile-pic-set {
+  margin: 0 auto;
+  max-width: 250px;
+  max-height: 250px;
+  cursor: pointer;
+}
+
+.profile-pic-set:hover {
+  outline: 1px solid black;
+}
+
+.icon-pic {
+  max-width: 50px;
+  max-height: 50px;
+  cursor: pointer;
+}
+
+.icon-pic:focus {
+  outline: 1px solid black;
+}
+
+.close-modal {
+  float: right;
+}
+
+#loading {
+  height: 18px;
+}
+
+@media only screen and (max-width: 575px) {
+  .profile-pic-set {
+    max-width: 150px;
+    max-height: 150px;
+  }
+
+  .buttons {
+    margin-bottom: 5px;
+  }
+}

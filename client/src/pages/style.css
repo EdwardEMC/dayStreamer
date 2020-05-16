@@ -1,4 +1,4 @@
-#profile {
+#profile, #profile-settings {
   position: fixed;
   min-width: 50%;
   top: 50%;
@@ -12,7 +12,7 @@
 }
 
 @media only screen and (max-width: 991px) {
-  #profile {
+  #profile, #profile-settings {
     width: 100%;
   }
 }

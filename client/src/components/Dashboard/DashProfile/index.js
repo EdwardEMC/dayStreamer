@@ -2,6 +2,7 @@ import React from "react";
 import "./style.css";
 
 const userPath = process.env.PUBLIC_URL + '/assets/UserIcons/';
+const loadingPath = process.env.PUBLIC_URL + '/assets/LoadingIcons/';
 
 function DashProfile(props) {
   if(typeof props.user.username !== "undefined") {
@@ -23,7 +24,7 @@ function DashProfile(props) {
     );
   }
   else {
-    return <h5>Loading......</h5>
+    return <h5><img id="loading" src={loadingPath + "loading.gif"} alt="loading gif"></img>&emsp;Loading......</h5>
   }
 };
 

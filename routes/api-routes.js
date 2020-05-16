@@ -11,7 +11,6 @@ module.exports = function(app) {
   //===========================================================================
   // GET REQUESTS
   //===========================================================================
-
   // route to verify user
   app.get('/api/verify', (req, res) => {
     db.User.findOne({ 
@@ -149,7 +148,6 @@ module.exports = function(app) {
   //===========================================================================
   // POST REQUESTS
   //===========================================================================
-
   // route to authenticate user logging in
   app.post('/api/login', (req, res, next) => {
     passport.authenticate('local', (err, user, info) => {
@@ -229,7 +227,27 @@ module.exports = function(app) {
   //===========================================================================
   // POST REQUESTS
   //===========================================================================
-
+  // route to PUT (update) a user
+  app.put("/api/user", isAuth, function(req, res) {
+    db.User.update({
+      icon: req.body.icon,
+      namespace: req.body.namespace,
+      name: req.body.name
+    },
+    {
+      where: {
+        id: req.user.id
+      }
+    })
+    .then(function() {
+      console.log("Successfully updated user");
+      res.status(200).end();
+    })
+    .catch(function(err) {
+      res.status(401).json(err);
+    });
+  });
+  
   // route to PUT (update) a user's online marker (lat, lng)
   app.put("/api/user/online", isAuth, function(req, res) {
     db.User.update({
@@ -247,6 +265,36 @@ module.exports = function(app) {
     })
     .catch(function(err) {
       res.status(401).json(err);
+    });
+  });
+
+  //route to go offline
+  app.put("/api/offline", isAuth, function(req, res) {
+    db.User.update({ lat: null, lng: null }, { // removes online marker
+      where: {
+        id: req.user.id
+      }
+    })
+    .then(function() {
+      res.send("User has gone offline");
+    })
+    .catch(function(err) {
+      res.status(401).json(err);
+    });
+  });
+
+  //===========================================================================
+  // DELETE REQUESTS
+  //===========================================================================
+  // Route to delete a user
+  app.delete("/api/user", isAuth, function(req, res) {
+    var id = req.user.id;
+    db.User.destroy({
+      where: {
+        id: id
+      }
+    }).then(function(dbUser) {
+      res.json(dbUser);
     });
   });
 };
