@@ -25,6 +25,7 @@ const { RTCPeerConnection, RTCSessionDescription } = window;
 
 // Need to create a new peerConnection each time a person joins
 let peerConnection;
+// let peerConnection = new RTCPeerConnection();
 
 function DashChat() {
   // user.id for logged in id; user.name for logged in username
@@ -235,6 +236,13 @@ function DashChat() {
     // Emit an addToStream socket on call accept to other users in current call
     peerConnection = new RTCPeerConnection();
 
+    peerConnection.ontrack = function({ streams: [stream] }) {
+      const remoteVideo = document.getElementById("remote-video" + videos);
+      if (remoteVideo) {
+        remoteVideo.srcObject = stream;
+      }
+    };
+
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(new RTCSessionDescription(offer));
 
@@ -404,12 +412,12 @@ function DashChat() {
     document.getElementById("video-space").classList.add("hide");
   });
 
-  peerConnection.ontrack = function({ streams: [stream] }) {
-    const remoteVideo = document.getElementById("remote-video" + videos);
-    if (remoteVideo) {
-      remoteVideo.srcObject = stream;
-    }
-  };
+  // peerConnection.ontrack = function({ streams: [stream] }) {
+  //   const remoteVideo = document.getElementById("remote-video" + videos);
+  //   if (remoteVideo) {
+  //     remoteVideo.srcObject = stream;
+  //   }
+  // };
 
   navigator.getUserMedia(
     { video: true, audio: true },
