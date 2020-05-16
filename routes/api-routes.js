@@ -208,8 +208,8 @@ module.exports = function(app) {
     .then(function(dbChat) {
       db.Messages.create({
         message: req.body.message,
-        ChatId: dbChat.dataValues.id,
-        UserId: req.user.id
+        userId: req.user.id,
+        ChatId: dbChat.dataValues.id
       })
       .then(function() {
         res.status(200).end();

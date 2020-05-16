@@ -2,6 +2,7 @@ const express = require("express");
 const PORT = process.env.PORT || 3001;
 const app = express();
 
+const compression = require("compression");
 const path = require("path");
 
 // Socket Io set up
@@ -14,6 +15,9 @@ const passport = require("./config/passport");
 
 // Requiring our models for syncing
 const db = require("./models");
+
+// Minimise the size
+app.use(compression());
 
 // Setting up the authentication
 app.use(session({ 

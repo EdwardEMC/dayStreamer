@@ -9,7 +9,7 @@ const loadingPath = process.env.PUBLIC_URL + '/assets/LoadingIcons/';
 
 const customStyles = {
   content : {
-    backgroundColor       : 'grey',
+    backgroundColor       : 'white',
     top                   : '50%',
     left                  : '50%',
     right                 : 'auto',
@@ -103,7 +103,11 @@ function DashSet(props) {
   function handleDelete(event) {
     event.preventDefault();
     API.deleteUser("/api/user")
-    .then(history.push('/'));
+    .then(API.logOut)
+    .then(history.push('/'))
+    .catch(err => {
+      console.log(err);
+    })
   }
 
   if(typeof props.user.username !== "undefined") {

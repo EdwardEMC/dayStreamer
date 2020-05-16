@@ -201,7 +201,7 @@ function DashChat() {
       span.setAttribute("title", formatTime(element.createdAt));
       span.innerHTML = element.message;
 
-      if(element.UserId === data.id) {
+      if(element.userId === data.id) { // Change so that messages do not have a user associated
         li.setAttribute("class", "current");
         span.setAttribute("class", "sent");
       }

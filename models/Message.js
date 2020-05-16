@@ -3,6 +3,10 @@ module.exports = function(sequelize, DataTypes) {
     message: {
       type: DataTypes.STRING,
       allowNull: true
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
     }
   },
   {
@@ -15,11 +19,6 @@ module.exports = function(sequelize, DataTypes) {
         allowNull: false
       },
       onDelete: "cascade"
-    });
-    Messages.belongsTo(models.User, {
-      foreignKey: {
-        allowNull: false
-      }
     });
   };
 
