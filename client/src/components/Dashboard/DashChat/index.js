@@ -9,8 +9,6 @@ const iconPath = process.env.PUBLIC_URL + '/assets/ChatIcons/';
 let isAlreadyCalling = false;
 let getCalled = false;
 let chatName;
-// Shows who is on the other line
-// let existingCall;
 
 // For multi-user call
 let existingCall = [];
@@ -26,9 +24,7 @@ let connected = false;
 const { RTCPeerConnection, RTCSessionDescription } = window;
 
 // Need to create a new peerConnection each time a person joins
-let peerConnection = new RTCPeerConnection();
-let peerConnection1 = new RTCPeerConnection();
-
+let peerConnection;
 
 function DashChat() {
   // user.id for logged in id; user.name for logged in username
@@ -207,7 +203,7 @@ function DashChat() {
       span.setAttribute("title", formatTime(element.createdAt));
       span.innerHTML = element.message;
 
-      if(element.userId === data.id) { // Change so that messages do not have a user associated
+      if(element.userId === data.id) {
         li.setAttribute("class", "current");
         span.setAttribute("class", "sent");
       }
@@ -236,17 +232,12 @@ function DashChat() {
   async function callUser(socketId) {
     // After creating dynamic variable set it to = new RTCPeerConnection();
     // Can create a new peer connection at a increase dynamic variable each time someone is called concurrently
-    // Emit an addToStream socket on call-accept to other users in current call
-    let offer;
+    // Emit an addToStream socket on call accept to other users in current call
+    peerConnection = new RTCPeerConnection();
 
-    if(videos === 0) {
-      offer = await peerConnection.createOffer();
-      await peerConnection.setLocalDescription(new RTCSessionDescription(offer));
-    }
-    else {
-      offer = await peerConnection1.createOffer();
-      await peerConnection1.setLocalDescription(new RTCSessionDescription(offer));
-    }
+    const offer = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(new RTCSessionDescription(offer));
+
     socket.emit("call-user", {
       offer,
       to: socketId
@@ -368,20 +359,10 @@ function DashChat() {
       document.getElementById(elToFocus).click();
     };
 
-    let answer;
+    await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+    const answer = await peerConnection.createAnswer();
 
-    if(videos === 0) {
-      await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
-      answer = await peerConnection.createAnswer();
-
-      await peerConnection.setLocalDescription(new RTCSessionDescription(answer));
-    }
-    else {
-      await peerConnection1.setRemoteDescription(new RTCSessionDescription(data.offer));
-      answer = await peerConnection1.createAnswer();
-
-      await peerConnection1.setLocalDescription(new RTCSessionDescription(answer));
-    }
+    await peerConnection.setLocalDescription(new RTCSessionDescription(answer));
 
     socket.emit("make-answer", {
       answer,
@@ -392,16 +373,9 @@ function DashChat() {
   });
 
   socket.on("answer-made", async data => {
-    if(videos === 0) {
-      await peerConnection.setRemoteDescription(
-        new RTCSessionDescription(data.answer)
-      );
-    }
-    else {
-      await peerConnection1.setRemoteDescription(
-        new RTCSessionDescription(data.answer)
-      );
-    }
+    await peerConnection.setRemoteDescription(
+      new RTCSessionDescription(data.answer)
+    );
 
     if (!isAlreadyCalling) {
       callUser(data.socket);
@@ -431,17 +405,9 @@ function DashChat() {
   });
 
   peerConnection.ontrack = function({ streams: [stream] }) {
-    if(videos === 0) {
-      const remoteVideo = document.getElementById("remote-video" + 0);
-      if (remoteVideo) {
-        remoteVideo.srcObject = stream;
-      }
-    }
-    else {
-      const remoteVideo = document.getElementById("remote-video" + 1);
-      if (remoteVideo) {
-        remoteVideo.srcObject = stream;
-      }
+    const remoteVideo = document.getElementById("remote-video" + videos);
+    if (remoteVideo) {
+      remoteVideo.srcObject = stream;
     }
   };
 
@@ -611,10 +577,7 @@ function DashChat() {
       <div id="video-space" className="col-lg panels hide">
         <div className="video-chat-container">
           <div id="video-streams" className="video-container">
-            <div className="row no-gutters">
-              <video autoPlay className="remote-video" id={"remote-video" + 0}></video>
-              <video autoPlay className="remote-video" id={"remote-video" + 1}></video>
-            </div>
+            <video autoPlay className="remote-video" id={"remote-video" + videos}></video>
             <video autoPlay muted className="local-video" id="local-video"></video>
             <div id="options">
               <div id="call-buttons" className="button-container">  
