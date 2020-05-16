@@ -254,8 +254,16 @@ function DashChat() {
     // Can create a new peer connection at a increase dynamic variable each time someone is called concurrently
     // Emit an addToStream socket on call accept to other users in current call
 
-    let offer = await peerConnection.createOffer();
-    await peerConnection.setLocalDescription(new RTCSessionDescription(offer));
+    if(videos === 0) {
+      let offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(new RTCSessionDescription(offer));
+    }
+
+    // If first line is busy
+    if(videos === 1) {
+      let offer = await peerConnection1.createOffer();
+      await peerConnection1.setLocalDescription(new RTCSessionDescription(offer));
+    }
 
     socket.emit("call-user", {
       offer,
@@ -378,10 +386,20 @@ function DashChat() {
       document.getElementById(elToFocus).click();
     };
 
-    await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
-    const answer = await peerConnection.createAnswer();
+    if(videos === 0) {
+      await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+      const answer = await peerConnection.createAnswer();
 
-    await peerConnection.setLocalDescription(new RTCSessionDescription(answer));
+      await peerConnection.setLocalDescription(new RTCSessionDescription(answer));
+    }
+
+    // If first line busy
+    if(videos === 1) {
+      await peerConnection1.setRemoteDescription(new RTCSessionDescription(data.offer));
+      const answer = await peerConnection.createAnswer();
+
+      await peerConnection1.setLocalDescription(new RTCSessionDescription(answer));
+    }
 
     socket.emit("make-answer", {
       answer,
@@ -392,9 +410,18 @@ function DashChat() {
   });
 
   socket.on("answer-made", async data => {
-    await peerConnection.setRemoteDescription(
-      new RTCSessionDescription(data.answer)
-    );
+    if(videos === 0) {
+      await peerConnection.setRemoteDescription(
+        new RTCSessionDescription(data.answer)
+      );
+    }
+
+    // If first line busy
+    if(videos === 1) {
+      await peerConnection1.setRemoteDescription(
+        new RTCSessionDescription(data.answer)
+      );
+    }
 
     if (!isAlreadyCalling) {
       callUser(data.socket);
@@ -432,7 +459,7 @@ function DashChat() {
     //   messageNotifications + 1, "message received";
     //   name.inn
     // }
-    
+
     // else if detect the use is on the chats page
     if(window.location.pathname !== "/chats") {
       let notify = document.getElementById("notification");
