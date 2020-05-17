@@ -274,13 +274,12 @@ function DashChat(props) {
     // After creating dynamic variable set it to = new RTCPeerConnection();
     // Can create a new peer connection at a increase dynamic variable each time someone is called concurrently
     // Emit an addToStream socket on call accept to other users in current call
-
+    console.log(existingCall, "BEFORE");
     if(!existingCall.includes(socketId)) {
       existingCall.push(socketId);
     }
-
-    console.log(existingCall);
-    console.log(existingCall.length, "NUMBER OF CALLERS");
+    console.log(existingCall, "AFTER");
+    console.log(existingCall, "NUMBER OF CALLERS");
 
     if(existingCall.length === 1) {
       let offer = await peerConnection.createOffer();
@@ -293,7 +292,8 @@ function DashChat(props) {
     }
 
     // If first line is busy
-    if(existingCall.length === 2) {
+    // if(existingCall.length === 2) {
+    if(existingCall.length > 1) {
       let offer = await peerConnection1.createOffer();
       await peerConnection1.setLocalDescription(new RTCSessionDescription(offer));
       
@@ -397,7 +397,7 @@ function DashChat(props) {
       existingCall.push(data.socket);
     }
 
-    if (getCalled) {
+    // if (getCalled) {
       // Only confirm for first caller, other group members added freely
       // if(existingCall.length === 1) {
         let confirmed = window.confirm(
@@ -423,7 +423,7 @@ function DashChat(props) {
 
       unselectUsersFromList();
       document.getElementById(elToFocus).click();
-    };
+    // };
 
     console.log(existingCall);
     console.log(existingCall.length, "NUMBER OF CALLERS");
@@ -443,7 +443,8 @@ function DashChat(props) {
     }
 
     // If first line busy
-    if(existingCall.length === 2) {
+    // if(existingCall.length === 2) {
+    if(existingCall.length > 1) {
       await peerConnection1.setRemoteDescription(new RTCSessionDescription(data.offer));
       let answer = await peerConnection.createAnswer();
 
@@ -467,7 +468,8 @@ function DashChat(props) {
     }
 
     // If first line busy
-    if(existingCall.length === 2) {
+    // if(existingCall.length === 2) {
+    if(existingCall.length > 1) {
       console.log(peerConnection1, "PC1");
       await peerConnection1.setRemoteDescription(
         new RTCSessionDescription(data.answer)
@@ -481,7 +483,7 @@ function DashChat(props) {
     }
 
     let others = existingCall.filter(element => element !== data.socket);
-    
+
     if(addingStream) {
       socket.emit("new-to-stream", {
         to: others,
