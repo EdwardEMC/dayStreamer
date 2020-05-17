@@ -457,6 +457,7 @@ function DashChat(props) {
     console.log(videos, "answer");
 
     if(videos < 2) {
+      console.log(peerConnection, "PC");
       await peerConnection.setRemoteDescription(
         new RTCSessionDescription(data.answer)
       );
@@ -464,6 +465,7 @@ function DashChat(props) {
 
     // If first line busy
     if(videos >= 2) {
+      console.log(peerConnection1, "PC1");
       await peerConnection1.setRemoteDescription(
         new RTCSessionDescription(data.answer)
       );
@@ -525,6 +527,7 @@ function DashChat(props) {
     }
   };
 
+  // Not firing
   peerConnection1.ontrack = function({ streams: [stream] }) {
     console.log("PC1");
     const remoteVideo = document.getElementById("remote-video2");
