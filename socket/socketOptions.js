@@ -90,11 +90,11 @@ module.exports = function(io) {
 
     socket.on("new-to-stream", data => {
       console.log(data);
-      data.existingCall.forEach(call => {
-        socket.to(call).emit("add-to-stream", {
-          new: data.socket
-        });
-      });
+      // data.existingCall.forEach(call => {
+      //   socket.to(call).emit("add-to-stream", {
+      //     new: data.socket
+      //   });
+      // });
     });
   });
 };
