@@ -19,7 +19,7 @@ let existingCall = [];
 let videos;
 
 // For adding new group video members
-let addingStream;
+// let addingStream;
 
 // Keeping track of notifications
 // let messageNotifications;
@@ -127,7 +127,7 @@ function DashChat(props) {
         callUser(document.getElementById(name).getAttribute("value"));
         // Show video area and call buttons for the caller
         document.getElementById("video-space").classList.remove("hide");
-        if(existingCall.length > 1) {
+        if(existingCall.length >= 1) {
           addingStream = true;
         }
       });
@@ -199,7 +199,7 @@ function DashChat(props) {
       callUser(data.socket);
       // Show video area and call buttons for the caller
       document.getElementById("video-space").classList.remove("hide");
-      if(existingCall.length > 1) {
+      if(existingCall.length >= 1) {
         addingStream = true;
       }
     });
@@ -404,7 +404,7 @@ function DashChat(props) {
   socket.on("call-made", async data => {
     if (getCalled) {
       // Only confirm for first caller, other group members added freely
-      if(existingCall.length = 0) {
+      if(existingCall.length < 2) {
         let confirmed = window.confirm(
           `User "Socket: ${data.socket}" wants to call you. Do accept this call?`
         );
@@ -496,14 +496,14 @@ function DashChat(props) {
     let others = existingCall.filter(element => element !== data.socket);
 
     // Cannot place here as is as it will create a loop each time someone calls
-    if(addingStream) {
-      socket.emit("new-to-stream", {
-        to: others,
-        newStream: data.socket
-      });
+    // if(addingStream) {
+    //   socket.emit("new-to-stream", {
+    //     to: others,
+    //     newStream: data.socket
+    //   });
 
-      addingStream = false;
-    }
+    //   addingStream = false;
+    // }
   });
 
   socket.on("add-to-stream", data => {
@@ -511,8 +511,8 @@ function DashChat(props) {
     console.log(data, "ADDED TO STREAM");
 
     // Make the other users call the new member (add auto-accept)
-    isAlreadyCalling = false;
-    callUser(data.new);
+    // isAlreadyCalling = false;
+    // callUser(data.new);
   });
 
   socket.on("hang-up", () => {
