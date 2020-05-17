@@ -271,7 +271,6 @@ function DashChat(props) {
     // After creating dynamic variable set it to = new RTCPeerConnection();
     // Can create a new peer connection at a increase dynamic variable each time someone is called concurrently
     // Emit an addToStream socket on call accept to other users in current call
-    // let offer;
 
     console.log(videos, "call");
 
@@ -490,10 +489,11 @@ function DashChat(props) {
   });
 
   socket.on("add-to-stream", data => {
-    // Other users start call with newly joined stream
     console.log("HERE");
     console.log(data, "ADDED TO STREAM");
-    callUser(data.new);
+
+    // Make the other users call the new member (add auto-accept)
+    // callUser(data.new);
   });
 
   socket.on("hang-up", () => {
