@@ -31,20 +31,20 @@ const { RTCPeerConnection, RTCSessionDescription } = window;
 // Need to create a new peerConnection each time a person joins
 let peerConnection = new RTCPeerConnection();
 let peerConnection1 = new RTCPeerConnection();
-let peerConnection2 = new RTCPeerConnection();
-let peerConnection3 = new RTCPeerConnection();
-let peerConnection4 = new RTCPeerConnection();
-let peerConnection5 = new RTCPeerConnection();
-let peerConnection6 = new RTCPeerConnection();
-let peerConnection7 = new RTCPeerConnection();
-let peerConnection8 = new RTCPeerConnection();
-let peerConnection9 = new RTCPeerConnection();
+// let peerConnection2 = new RTCPeerConnection();
+// let peerConnection3 = new RTCPeerConnection();
+// let peerConnection4 = new RTCPeerConnection();
+// let peerConnection5 = new RTCPeerConnection();
+// let peerConnection6 = new RTCPeerConnection();
+// let peerConnection7 = new RTCPeerConnection();
+// let peerConnection8 = new RTCPeerConnection();
+// let peerConnection9 = new RTCPeerConnection();
 
 function DashChat(props) {
   // console.log(props.online, "ONLINE USERS");
   socket = props.socket;
 
-  // If
+  // Updates the user list each time user visits the messenger, incase of missed update-user-list emit
   updateUserList(props.online);
 
   // Keeping track of notifications
@@ -382,7 +382,7 @@ function DashChat(props) {
   });
 
   socket.on("call-made", async data => {
-    let answer;
+    // let answer;
 
     if (getCalled) {
       let confirmed = window.confirm(
@@ -408,25 +408,32 @@ function DashChat(props) {
 
     if(videos === 0) {
       await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
-      answer = await peerConnection.createAnswer();
+      const answer = await peerConnection.createAnswer();
 
       await peerConnection.setLocalDescription(new RTCSessionDescription(answer));
+
+      socket.emit("make-answer", {
+        answer,
+        to: data.socket
+      });
     }
 
     // If first line busy
     if(videos === 1) {
       await peerConnection1.setRemoteDescription(new RTCSessionDescription(data.offer));
-      answer = await peerConnection.createAnswer();
+      const answer = await peerConnection.createAnswer();
 
       await peerConnection1.setLocalDescription(new RTCSessionDescription(answer));
+
+      socket.emit("make-answer", {
+        answer,
+        to: data.socket
+      });
     }
 
     videos = videos + 1;
 
-    socket.emit("make-answer", {
-      answer,
-      to: data.socket
-    });
+    
 
     getCalled = true;
   });
