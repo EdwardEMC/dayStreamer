@@ -44,6 +44,11 @@ function DashChat(props) {
   // console.log(props.online, "ONLINE USERS");
   socket = props.socket;
 
+  // If already in a call, show video space
+  if(existingCall[0]) {
+    document.getElementById("video-space").classList.remove("hide");
+  }
+
   // Updates the user list each time user visits the messenger, incase of missed update-user-list emit
   updateUserList(props.online);
 
@@ -445,8 +450,6 @@ function DashChat(props) {
 
     videos = videos + 1;
 
-    
-
     getCalled = true;
   });
 
@@ -515,6 +518,7 @@ function DashChat(props) {
   });
 
   peerConnection.ontrack = function({ streams: [stream] }) {
+    console.log("PC");
     const remoteVideo = document.getElementById("remote-video1");
     if (remoteVideo) {
       remoteVideo.srcObject = stream;
@@ -522,6 +526,7 @@ function DashChat(props) {
   };
 
   peerConnection1.ontrack = function({ streams: [stream] }) {
+    console.log("PC1");
     const remoteVideo = document.getElementById("remote-video2");
     if (remoteVideo) {
       remoteVideo.srcObject = stream;
