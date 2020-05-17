@@ -397,7 +397,7 @@ function DashChat(props) {
       existingCall.push(data.socket);
     }
 
-    // if (getCalled) {
+    if (getCalled) {
       // Only confirm for first caller, other group members added freely
       // if(existingCall.length === 1) {
         let confirmed = window.confirm(
@@ -416,14 +416,14 @@ function DashChat(props) {
         }
       // }
 
-      let userCalling = document.getElementsByClassName(data.socket)
-      let elToFocus = userCalling[0].getAttribute("id");
+      // let userCalling = document.getElementsByClassName(data.socket)
+      // let elToFocus = userCalling[0].getAttribute("id");
       // Show video area and call buttons for the receiver
       document.getElementById("video-space").classList.remove("hide");
 
-      unselectUsersFromList();
-      document.getElementById(elToFocus).click();
-    // };
+      // unselectUsersFromList();
+      // document.getElementById(elToFocus).click();
+    };
 
     console.log(existingCall);
     console.log(existingCall.length, "NUMBER OF CALLERS");
@@ -446,11 +446,11 @@ function DashChat(props) {
     // if(existingCall.length === 2) {
     if(existingCall.length > 1) {
       await peerConnection1.setRemoteDescription(new RTCSessionDescription(data.offer));
-      let answer = await peerConnection.createAnswer();
+      let answer = await peerConnection1.createAnswer();
 
       await peerConnection1.setLocalDescription(new RTCSessionDescription(answer));
 
-      console.log(peerConnection, "Other User");
+      console.log(peerConnection1, "Other User");
 
       socket.emit("make-answer", {
         answer,
@@ -731,11 +731,17 @@ function DashChat(props) {
         <div className="video-chat-container">
           <div id="video-streams" className="video-container">
             <div className="row no-gutters">
-              <div className="remote-video"></div>
-              <video autoPlay className="group-video" id={"remote-video1"}></video>
-              <video autoPlay className="group-video" id={"remote-video2"}></video>
+              <div className="col-md">
+                <video autoPlay muted className="local-video" id="local-video"></video>
+              </div>
+              <div className="col-md">
+                <video autoPlay className="group-video" id={"remote-video1"}></video>
+              </div>
+              <div className="col-md">
+                <video autoPlay className="group-video" id={"remote-video2"}></video>
+              </div>
             </div>
-            <video autoPlay muted className="local-video" id="local-video"></video>
+            <video autoPlay muted className="local-video-single hide" id="local-video"></video>
             <div id="options">
               <div id="call-buttons" className="button-container">  
                 <button onClick={hangup} className="btn btn-danger">Hang Up</button>
