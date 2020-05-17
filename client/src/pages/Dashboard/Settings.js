@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import DashSet from "../../components/Dashboard/DashSet";
 import API from "../../components/utils/API";
 import Card from "../../components/utils/card";
+import "../../style.css";
 
 class Settings extends Component {
   state = {

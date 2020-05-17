@@ -1,12 +1,10 @@
-import React, { Component } from "react";
+import React from "react";
 import DashChat from "../../components/Dashboard/DashChat";
 
-class Chat extends Component {
-  render() {
-    return (
-      <DashChat />
-    );
-  };
+function Chat(props) {
+  return (
+    <DashChat socket={props.socket} online={props.online}/>
+  );
 };
 
 export default Chat;

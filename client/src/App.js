@@ -12,17 +12,40 @@ import Profile from "./pages/Dashboard/Profile";
 import Chat from "./pages/Dashboard/Chat";
 import Settings from "./pages/Dashboard/Settings";
 import Map from "./pages/Dashboard/Map";
-import Project from "./pages/Dashboard/Project";
+import Plans from "./pages/Dashboard/Plans";
+
+// Socket connection
+import io from "socket.io-client";
+
+let connected = false;
+let socket;
+let onlineUsers;
 
 const NavRoutes = () => {
+  const user = JSON.parse(localStorage.getItem("User"));
+
+  if(!connected) {
+    socket = io.connect({query: {name: user.name}});
+    connected = true;
+  }
+
+  socket.on("update-user-list", data => {
+    onlineUsers = data.online;
+    // console.log(data, "online users");
+  });
+
   return (
     <div className="site">
       <Header />
       <div className="site-content">
         <Route exact path="/map-type/:map" component={Map} />
         <Route path="/profile" component={Profile} />
-        <Route exact path="/chat" component={Chat} />
-        <Route exact path="/projects" component={Project} />
+        {/* <Route exact path="/chat" component={Chat} /> */}
+        <Route 
+          exact path="/chat"
+          render = {(props) => <Chat {...props} socket={socket} online={onlineUsers}/>}
+        />
+        <Route exact path="/plans" component={Plans} />
         <Route exact path="/settings" component={Settings} />
       </div>
     </div>

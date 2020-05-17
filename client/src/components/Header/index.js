@@ -48,8 +48,8 @@ function Header() {
           </li>
           &emsp;
           <li className="nav-item">
-            <Link to="/projects" className="nav-link">
-              Projects
+            <Link to="/plans" className="nav-link">
+              Plans
             </Link>
           </li> 
           &emsp;

@@ -1,6 +1,6 @@
 import React from "react";
 import API from "../../utils/API";
-import io from "socket.io-client";
+// import io from "socket.io-client";
 import formatTime from "../../utils/formatTime";
 import "./style.css";
 
@@ -16,7 +16,7 @@ let chatName;
 let existingCall = [];
 
 // For dynamic screen generation
-let videos = 0;
+let videos;
 
 // Keeping track of notifications
 // let messageNotifications;
@@ -24,7 +24,7 @@ let videos = 0;
 // Array to hold currently online friends (relates to the offline/online icons)
 let onlineFriends = [];
 let socket;
-let connected = false;
+// let connected = false;
 
 const { RTCPeerConnection, RTCSessionDescription } = window;
 
@@ -40,12 +40,23 @@ let peerConnection7 = new RTCPeerConnection();
 let peerConnection8 = new RTCPeerConnection();
 let peerConnection9 = new RTCPeerConnection();
 
-function DashChat() {
+function DashChat(props) {
+  // console.log(props.online, "ONLINE USERS");
+  socket = props.socket;
+
+  // If
+  updateUserList(props.online);
+
   // Keeping track of notifications
-  let messageNotifications = 0;
-  document.getElementById("notification").innerHTML = messageNotifications;
-  document.getElementById("notification").classList.add("hide");
+  // let messageNotifications = 0;
+  
+  // document.getElementById("notification").innerHTML = messageNotifications;
+  // document.getElementById("notification").classList.add("hide");
   // user.id for logged in id; user.name for logged in username
+
+  // Initial number of starting screens
+  videos = 0;
+
   const user = JSON.parse(localStorage.getItem("User"));
 
   //===========================================================================
@@ -106,7 +117,7 @@ function DashChat() {
       callButtonEl.addEventListener("click", () => {
         callUser(document.getElementById(name).getAttribute("value"));
         // Show video area and call buttons for the caller
-        document.getElementById("video-space").classList.toggle("hide");
+        document.getElementById("video-space").classList.remove("hide");
       });
 
       userContainerEl.append(usernameEl, callButtonEl, offlineEl);
@@ -174,7 +185,7 @@ function DashChat() {
     callButtonEl.addEventListener("click", () => {
       callUser(data.socket);
       // Show video area and call buttons for the caller
-      document.getElementById("video-space").classList.toggle("hide");
+      document.getElementById("video-space").classList.remove("hide");
     });
 
     addFriendEl.addEventListener("click", () => {
@@ -275,7 +286,7 @@ function DashChat() {
   }
 
   function updateUserList(socketIds) {
-    // console.log(socketIds, "ONLINE USERS");
+    // console.log(socketIds, "ONLINE");
     const activeUserContainer = document.getElementById("active-user-container");
 
     let friendList = [];
@@ -290,19 +301,24 @@ function DashChat() {
     })
     .then(function() {
       socketIds.forEach(data => {
+        // console.log(friendList, "Friendlist");
+        // console.log(data, "INSIDE forEach");
         const alreadyExistingUser = document.getElementById(data.name);
         if (!alreadyExistingUser && data.name !== user.name && !friendList.includes(data.name)) {
           const userContainerEl = createUserItemContainer(data);
 
           activeUserContainer.append(userContainerEl);
         }
-        else if (alreadyExistingUser) {
+        else {
           // Push to onlineFriends array as when refreshing or changing component client side knows whose still online
-          onlineFriends.push({name: data.name, socket: data.socket});
-          document.getElementById(data.name).setAttribute("value", data.socket);
-          document.getElementById(data.name).classList.add(data.socket);
-          document.getElementById(data.name + "offline").classList.add("hide");
-          document.getElementById(data.name + "online").classList.remove("hide");
+          // This part still needs work
+          if(data.name) {
+            onlineFriends.push({name: data.name, socket: data.socket});
+            document.getElementById(data.name).setAttribute("value", data.socket);
+            document.getElementById(data.name).classList.add(data.socket);
+            document.getElementById(data.name + "offline").classList.add("hide");
+            document.getElementById(data.name + "online").classList.remove("hide");
+          }
         }
       });
     }) // If there's an error, log the error
@@ -316,15 +332,16 @@ function DashChat() {
   //===========================================================================
   // Send data throught the connection (username)
   // Only make one connection when logging in, not on refresh
-  if(!connected) {
-    socket = io.connect({query: {name: user.name}});
-    connected = true;
-  }
+  // if(!connected) {
+  //   socket = io.connect({query: {name: user.name}});
+  //   connected = true;
+  // }
 
   // remove any excess chat listeners
   socket.removeListener("chat-message");
   socket.removeListener("chat-sent");
 
+  // not getting called as connection is on app screen
   socket.on("update-user-list", ({ users }) => {
     // if on friends list show on chat area
     updateUserList(users);
@@ -404,6 +421,8 @@ function DashChat() {
       await peerConnection1.setLocalDescription(new RTCSessionDescription(answer));
     }
 
+    videos = videos + 1;
+
     socket.emit("make-answer", {
       answer,
       to: data.socket
@@ -425,6 +444,8 @@ function DashChat() {
         new RTCSessionDescription(data.answer)
       );
     }
+
+    videos = videos + 1;
 
     if (!isAlreadyCalling) {
       callUser(data.socket);
@@ -464,11 +485,11 @@ function DashChat() {
     // }
 
     // else if detect the use is on the chats page
-    if(window.location.pathname !== "/chats") {
-      let notify = document.getElementById("notification");
-      notify.innerHTML = "!";
-      notify.classList.remove("hide");
-    }
+    // if(window.location.pathname !== "/chats") {
+    //   let notify = document.getElementById("notification");
+    //   notify.innerHTML = "!";
+    //   notify.classList.remove("hide");
+    // }
   });
 
   peerConnection.ontrack = function({ streams: [stream] }) {

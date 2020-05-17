@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import Card from "../../components/utils/card";
 import DashProfile from "../../components/Dashboard/DashProfile";
 import API from "../../components/utils/API";
-import "../style.css";
+import "../../style.css";
 
 class Profile extends Component {
   state = {

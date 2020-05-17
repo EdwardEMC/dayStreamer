@@ -17,7 +17,8 @@ module.exports = function(io) {
         // Check if still crashes on none left
         users: activeSockets.filter(
           existingSocket => existingSocket.socket !== socket.id
-        )
+        ),
+        online: activeSockets
       });
   
       let data = {
@@ -26,7 +27,8 @@ module.exports = function(io) {
       }
   
       socket.broadcast.emit("update-user-list", {
-        users: [data]
+        users: [data],
+        online: activeSockets
       });
     };
   
@@ -76,6 +78,7 @@ module.exports = function(io) {
     });
   
     socket.on("chat-message", data => {
+      console.log(data, "HERE");
       socket.to(data.to).emit("chat-sent", {
         msg: data,
         socket: socket.id
