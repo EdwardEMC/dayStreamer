@@ -127,9 +127,9 @@ function DashChat(props) {
         callUser(document.getElementById(name).getAttribute("value"));
         // Show video area and call buttons for the caller
         document.getElementById("video-space").classList.remove("hide");
-        if(existingCall.length >= 1) {
-          addingStream = true;
-        }
+        // if(existingCall.length >= 1) {
+        //   addingStream = true;
+        // }
       });
 
       userContainerEl.append(usernameEl, callButtonEl, offlineEl);
@@ -199,9 +199,9 @@ function DashChat(props) {
       callUser(data.socket);
       // Show video area and call buttons for the caller
       document.getElementById("video-space").classList.remove("hide");
-      if(existingCall.length >= 1) {
-        addingStream = true;
-      }
+      // if(existingCall.length >= 1) {
+      //   addingStream = true;
+      // }
     });
 
     addFriendEl.addEventListener("click", () => {
