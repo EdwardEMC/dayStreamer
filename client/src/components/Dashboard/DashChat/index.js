@@ -40,9 +40,6 @@ let peerConnection1 = new RTCPeerConnection();
 // let peerConnection8 = new RTCPeerConnection();
 // let peerConnection9 = new RTCPeerConnection();
 
-// let peerConnection;
-// let peerConnection1;
-
 function DashChat(props) {
   // console.log(props.online, "ONLINE USERS");
   socket = props.socket;
@@ -347,20 +344,12 @@ function DashChat(props) {
   }
 
   //===========================================================================
-  // Socket Connection Area
+  // Socket Area
   //===========================================================================
-  // Send data throught the connection (username)
-  // Only make one connection when logging in, not on refresh
-  // if(!connected) {
-  //   socket = io.connect({query: {name: user.name}});
-  //   connected = true;
-  // }
-
   // remove any excess chat listeners
   socket.removeListener("chat-message");
   socket.removeListener("chat-sent");
 
-  // not getting called as connection is on app screen
   socket.on("update-user-list", ({ users }) => {
     // if on friends list show on chat area
     updateUserList(users);
@@ -401,8 +390,6 @@ function DashChat(props) {
   });
 
   socket.on("call-made", async data => {
-    // let answer;
-
     if (getCalled) {
       let confirmed = window.confirm(
         `User "Socket: ${data.socket}" wants to call you. Do accept this call?`
@@ -426,7 +413,7 @@ function DashChat(props) {
     };
     console.log(videos, "videos");
 
-    // if(videos < 2) {
+    if(videos < 2) {
       await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
       const answer = await peerConnection.createAnswer();
 
@@ -438,20 +425,20 @@ function DashChat(props) {
         answer,
         to: data.socket
       });
-    // }
+    }
 
     // If first line busy
-    // if(videos >= 2) {
-      // await peerConnection1.setRemoteDescription(new RTCSessionDescription(data.offer));
-      // const answer = await peerConnection.createAnswer();
+    if(videos >= 2) {
+      await peerConnection1.setRemoteDescription(new RTCSessionDescription(data.offer));
+      const answer = await peerConnection.createAnswer();
 
-      // await peerConnection1.setLocalDescription(new RTCSessionDescription(answer));
+      await peerConnection1.setLocalDescription(new RTCSessionDescription(answer));
 
-      // socket.emit("make-answer", {
-      //   answer,
-      //   to: data.socket
-      // });
-    // }
+      socket.emit("make-answer", {
+        answer,
+        to: data.socket
+      });
+    }
 
     videos = videos + 1;
 
@@ -479,10 +466,26 @@ function DashChat(props) {
     videos = videos + 1;
 
     // Only allows one call
-    if (!isAlreadyCalling) {
+    if (!isAlreadyCalling && videos < 2) {
       callUser(data.socket);
       isAlreadyCalling = true;
     }
+
+    if (!isAlreadyCalling && videos >= 2) {
+      console.log("adding new member");
+      callUser(data.socket);
+      socket.emit("new-to-stream", {
+        to: existingCall,
+        newStream: data.socket
+      });
+      isAlreadyCalling = true;
+    }
+  });
+
+  socket.on("add-to-stream", data => {
+    // Other users start call with newly joined stream
+    console.log("HERE");
+    callUser(data.socket);
   });
 
   socket.on("hang-up", () => {
@@ -532,7 +535,6 @@ function DashChat(props) {
     }
   };
 
-  // Not firing
   peerConnection1.ontrack = function({ streams: [stream] }) {
     console.log("PC1");
     const remoteVideo = document.getElementById("remote-video2");
@@ -549,6 +551,7 @@ function DashChat(props) {
         localVideo.srcObject = stream;
       }
 
+      // Need to add streams for each new call
       stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
       stream.getTracks().forEach(track => peerConnection1.addTrack(track, stream));
     },
