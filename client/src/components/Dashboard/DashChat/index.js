@@ -282,6 +282,7 @@ function DashChat(props) {
     // Emit an addToStream socket on call accept to other users in current call
 
     console.log(videos, "call");
+    console.log(existingCall.length, "NUMBER OF CALLERS");
 
     if(videos < 2) {
       const offer = await peerConnection.createOffer();
@@ -427,6 +428,7 @@ function DashChat(props) {
       document.getElementById(elToFocus).click();
     };
     console.log(videos, "videos");
+    console.log(existingCall.length, "NUMBER OF CALLERS");
 
     if(videos < 2) {
       await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
@@ -510,8 +512,9 @@ function DashChat(props) {
     console.log("HERE");
     console.log(data, "ADDED TO STREAM");
 
-    // Make the other users call the new member (add auto-accept)
     isAlreadyCalling = false;
+    // Working up to here (data.new is the socket of the newest person added to the primary call)
+    // Make the other users call the new member (add auto-accept)
     // callUser(data.new);
   });
 
