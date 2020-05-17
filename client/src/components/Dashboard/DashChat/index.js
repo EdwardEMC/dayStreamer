@@ -425,7 +425,7 @@ function DashChat(props) {
 
     // if(videos < 2) {
       await peerConnection1.setRemoteDescription(new RTCSessionDescription(data.offer));
-      const answer = await peerConnection.createAnswer();
+      const answer = await peerConnection1.createAnswer();
 
       await peerConnection1.setLocalDescription(new RTCSessionDescription(answer));
 
