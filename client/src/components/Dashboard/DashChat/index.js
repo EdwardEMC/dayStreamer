@@ -493,7 +493,8 @@ function DashChat(props) {
     console.log(data, "ADDED TO STREAM");
 
     // Make the other users call the new member (add auto-accept)
-    // callUser(data.new);
+    isAlreadyCalling = false;
+    callUser(data.new);
   });
 
   socket.on("hang-up", () => {
