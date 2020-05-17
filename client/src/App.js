@@ -24,6 +24,7 @@ let onlineUsers;
 const NavRoutes = () => {
   const user = JSON.parse(localStorage.getItem("User"));
 
+  // On log in connect socket (only once)
   if(!connected) {
     socket = io.connect({query: {name: user.name}});
     connected = true;

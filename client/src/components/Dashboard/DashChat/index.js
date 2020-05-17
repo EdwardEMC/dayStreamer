@@ -264,25 +264,34 @@ function DashChat(props) {
     // After creating dynamic variable set it to = new RTCPeerConnection();
     // Can create a new peer connection at a increase dynamic variable each time someone is called concurrently
     // Emit an addToStream socket on call accept to other users in current call
-    let offer;
+    // let offer;
 
-    if(videos === 0) {
-      offer = await peerConnection.createOffer();
+    console.log(videos, "call");
+
+    if(videos < 2) {
+      const offer = await peerConnection.createOffer();
       await peerConnection.setLocalDescription(new RTCSessionDescription(offer));
+
+      socket.emit("call-user", {
+        offer,
+        to: socketId
+      });
+  
+      existingCall.push(socketId);
     }
 
     // If first line is busy
-    if(videos === 1) {
-      offer = await peerConnection1.createOffer();
+    if(videos >= 2) {
+      const offer = await peerConnection1.createOffer();
       await peerConnection1.setLocalDescription(new RTCSessionDescription(offer));
+      
+      socket.emit("call-user", {
+        offer,
+        to: socketId
+      });
+  
+      existingCall.push(socketId);
     }
-
-    socket.emit("call-user", {
-      offer,
-      to: socketId
-    });
-
-    existingCall.push(socketId);
   }
 
   function updateUserList(socketIds) {
@@ -405,8 +414,9 @@ function DashChat(props) {
       unselectUsersFromList();
       document.getElementById(elToFocus).click();
     };
+    console.log(videos, "videos");
 
-    if(videos === 0) {
+    if(videos < 2) {
       await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
       const answer = await peerConnection.createAnswer();
 
@@ -419,7 +429,7 @@ function DashChat(props) {
     }
 
     // If first line busy
-    if(videos === 1) {
+    if(videos >= 2) {
       await peerConnection1.setRemoteDescription(new RTCSessionDescription(data.offer));
       const answer = await peerConnection.createAnswer();
 
@@ -439,14 +449,16 @@ function DashChat(props) {
   });
 
   socket.on("answer-made", async data => {
-    if(videos === 0) {
+    console.log(videos, "answer");
+
+    if(videos < 2) {
       await peerConnection.setRemoteDescription(
         new RTCSessionDescription(data.answer)
       );
     }
 
     // If first line busy
-    if(videos === 1) {
+    if(videos >= 2) {
       await peerConnection1.setRemoteDescription(
         new RTCSessionDescription(data.answer)
       );
