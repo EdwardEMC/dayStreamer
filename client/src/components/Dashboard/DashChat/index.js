@@ -512,7 +512,6 @@ function DashChat(props) {
 
     // Make the other users call the new member (add auto-accept)
     isAlreadyCalling = false;
-    emitted = false;
     callUser(data.new);
   });
 
