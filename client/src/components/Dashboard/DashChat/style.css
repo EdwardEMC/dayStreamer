@@ -29,7 +29,7 @@
 }
 
 .friend-users-panel, .active-users-panel, .other-users-panel {
-  min-height: 10px;
+  /* min-height: 10px; */
   border: 1px solid #cddfe7;
   overflow: auto;
 }

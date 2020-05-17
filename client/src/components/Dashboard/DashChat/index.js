@@ -18,6 +18,9 @@ let existingCall = [];
 // For dynamic screen generation
 let videos;
 
+// For adding new group video members
+let addingStream;
+
 // Keeping track of notifications
 // let messageNotifications;
 
@@ -124,6 +127,9 @@ function DashChat(props) {
         callUser(document.getElementById(name).getAttribute("value"));
         // Show video area and call buttons for the caller
         document.getElementById("video-space").classList.remove("hide");
+        if(existingCall.length > 1) {
+          addingStream = true;
+        }
       });
 
       userContainerEl.append(usernameEl, callButtonEl, offlineEl);
@@ -193,6 +199,9 @@ function DashChat(props) {
       callUser(data.socket);
       // Show video area and call buttons for the caller
       document.getElementById("video-space").classList.remove("hide");
+      if(existingCall.length > 1) {
+        addingStream = true;
+      }
     });
 
     addFriendEl.addEventListener("click", () => {
@@ -394,16 +403,19 @@ function DashChat(props) {
 
   socket.on("call-made", async data => {
     if (getCalled) {
-      // let confirmed = window.confirm(
-      //   `User "Socket: ${data.socket}" wants to call you. Do accept this call?`
-      // );
+      // Only confirm for first caller, other group members added freely
+      if(existingCall.length = 0) {
+        let confirmed = window.confirm(
+          `User "Socket: ${data.socket}" wants to call you. Do accept this call?`
+        );
 
-      // if (!confirmed) {
-      //   socket.emit("reject-call", {
-      //     from: data.socket
-      //   });
-      //   return;
-      // }
+        if (!confirmed) {
+          socket.emit("reject-call", {
+            from: data.socket
+          });
+          return;
+        }
+      }
 
       existingCall.push(data.socket);
       let userCalling = document.getElementsByClassName(data.socket)
@@ -478,13 +490,19 @@ function DashChat(props) {
       console.log("adding new member");
       callUser(data.socket);
 
-      let others = existingCall.filter(element => element !== data.socket);
+      isAlreadyCalling = true;
+    }
 
+    let others = existingCall.filter(element => element !== data.socket);
+
+    // Cannot place here as is as it will create a loop each time someone calls
+    if(addingStream) {
       socket.emit("new-to-stream", {
         to: others,
         newStream: data.socket
       });
-      isAlreadyCalling = true;
+
+      addingStream = false;
     }
   });
 
@@ -494,6 +512,7 @@ function DashChat(props) {
 
     // Make the other users call the new member (add auto-accept)
     isAlreadyCalling = false;
+    emitted = false;
     callUser(data.new);
   });
 
@@ -706,15 +725,15 @@ function DashChat(props) {
         <div id="user-list-panel">
             {/* collapsible panels */}
             <button onClick={collapse} value="active-user-container" className="panel-title collapsible">Active Users</button>
-            <div className="active-users-panel content hide" id="active-user-container">
+            <div className="active-users-panel content" id="active-user-container">
               {/* area for active chats */}
             </div>
             <button onClick={collapse} value="friend-user-container" className="panel-title collapsible">Conversations</button>
-            <div className="friend-users-panel content hide" id="friend-user-container">
+            <div className="friend-users-panel content" id="friend-user-container">
               {/* area for friends chats */}
             </div>
             <button onClick={collapse} value="other-user-container" className="panel-title collapsible">Team Chats</button>
-            <div className="other-users-panel content hide" id="other-user-container">
+            <div className="other-users-panel content" id="other-user-container">
               {/* area for others chats */}
             </div>
           </div>
