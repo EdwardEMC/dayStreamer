@@ -418,7 +418,7 @@ function DashChat(props) {
     };
     console.log(videos, "videos");
 
-    if(videos < 2) {
+    // if(videos < 2) {
       await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
       const answer = await peerConnection.createAnswer();
 
@@ -428,20 +428,20 @@ function DashChat(props) {
         answer,
         to: data.socket
       });
-    }
+    // }
 
     // If first line busy
-    if(videos >= 2) {
-      await peerConnection1.setRemoteDescription(new RTCSessionDescription(data.offer));
-      const answer = await peerConnection.createAnswer();
+    // if(videos >= 2) {
+    //   await peerConnection1.setRemoteDescription(new RTCSessionDescription(data.offer));
+    //   const answer = await peerConnection.createAnswer();
 
-      await peerConnection1.setLocalDescription(new RTCSessionDescription(answer));
+    //   await peerConnection1.setLocalDescription(new RTCSessionDescription(answer));
 
-      socket.emit("make-answer", {
-        answer,
-        to: data.socket
-      });
-    }
+    //   socket.emit("make-answer", {
+    //     answer,
+    //     to: data.socket
+    //   });
+    // }
 
     videos = videos + 1;
 
