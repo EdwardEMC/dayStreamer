@@ -276,8 +276,8 @@ function DashChat(props) {
     console.log(videos, "call");
 
     if(videos < 2) {
-      const offer = await peerConnection.createOffer();
-      await peerConnection.setLocalDescription(new RTCSessionDescription(offer));
+      const offer = await peerConnection1.createOffer();
+      await peerConnection1.setLocalDescription(new RTCSessionDescription(offer));
 
       socket.emit("call-user", {
         offer,
@@ -288,17 +288,17 @@ function DashChat(props) {
     }
 
     // If first line is busy
-    if(videos >= 2) {
-      const offer = await peerConnection1.createOffer();
-      await peerConnection1.setLocalDescription(new RTCSessionDescription(offer));
+    // if(videos >= 2) {
+    //   const offer = await peerConnection1.createOffer();
+    //   await peerConnection1.setLocalDescription(new RTCSessionDescription(offer));
       
-      socket.emit("call-user", {
-        offer,
-        to: socketId
-      });
+    //   socket.emit("call-user", {
+    //     offer,
+    //     to: socketId
+    //   });
   
-      existingCall.push(socketId);
-    }
+    //   existingCall.push(socketId);
+    // }
   }
 
   function updateUserList(socketIds) {
@@ -424,12 +424,12 @@ function DashChat(props) {
     console.log(videos, "videos");
 
     // if(videos < 2) {
-      await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+      await peerConnection1.setRemoteDescription(new RTCSessionDescription(data.offer));
       const answer = await peerConnection.createAnswer();
 
-      await peerConnection.setLocalDescription(new RTCSessionDescription(answer));
+      await peerConnection1.setLocalDescription(new RTCSessionDescription(answer));
 
-      console.log(peerConnection, "Other User");
+      console.log(peerConnection1, "Other User");
 
       socket.emit("make-answer", {
         answer,
@@ -459,19 +459,19 @@ function DashChat(props) {
     console.log(videos, "answer");
 
     if(videos < 2) {
-      console.log(peerConnection, "PC");
-      await peerConnection.setRemoteDescription(
+      console.log(peerConnection1, "PC");
+      await peerConnection1.setRemoteDescription(
         new RTCSessionDescription(data.answer)
       );
     }
 
     // If first line busy
-    if(videos >= 2) {
-      console.log(peerConnection1, "PC1");
-      await peerConnection1.setRemoteDescription(
-        new RTCSessionDescription(data.answer)
-      );
-    }
+    // if(videos >= 2) {
+    //   console.log(peerConnection1, "PC1");
+    //   await peerConnection1.setRemoteDescription(
+    //     new RTCSessionDescription(data.answer)
+    //   );
+    // }
 
     videos = videos + 1;
 
