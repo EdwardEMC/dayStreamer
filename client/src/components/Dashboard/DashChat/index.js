@@ -40,6 +40,9 @@ let peerConnection1 = new RTCPeerConnection();
 // let peerConnection8 = new RTCPeerConnection();
 // let peerConnection9 = new RTCPeerConnection();
 
+// let peerConnection;
+// let peerConnection1;
+
 function DashChat(props) {
   // console.log(props.online, "ONLINE USERS");
   socket = props.socket;
@@ -276,8 +279,8 @@ function DashChat(props) {
     console.log(videos, "call");
 
     if(videos < 2) {
-      const offer = await peerConnection1.createOffer();
-      await peerConnection1.setLocalDescription(new RTCSessionDescription(offer));
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(new RTCSessionDescription(offer));
 
       socket.emit("call-user", {
         offer,
@@ -288,17 +291,17 @@ function DashChat(props) {
     }
 
     // If first line is busy
-    // if(videos >= 2) {
-    //   const offer = await peerConnection1.createOffer();
-    //   await peerConnection1.setLocalDescription(new RTCSessionDescription(offer));
+    if(videos >= 2) {
+      const offer = await peerConnection1.createOffer();
+      await peerConnection1.setLocalDescription(new RTCSessionDescription(offer));
       
-    //   socket.emit("call-user", {
-    //     offer,
-    //     to: socketId
-    //   });
+      socket.emit("call-user", {
+        offer,
+        to: socketId
+      });
   
-    //   existingCall.push(socketId);
-    // }
+      existingCall.push(socketId);
+    }
   }
 
   function updateUserList(socketIds) {
@@ -424,12 +427,12 @@ function DashChat(props) {
     console.log(videos, "videos");
 
     // if(videos < 2) {
-      await peerConnection1.setRemoteDescription(new RTCSessionDescription(data.offer));
-      const answer = await peerConnection1.createAnswer();
+      await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+      const answer = await peerConnection.createAnswer();
 
-      await peerConnection1.setLocalDescription(new RTCSessionDescription(answer));
+      await peerConnection.setLocalDescription(new RTCSessionDescription(answer));
 
-      console.log(peerConnection1, "Other User");
+      console.log(peerConnection, "Other User");
 
       socket.emit("make-answer", {
         answer,
@@ -459,19 +462,19 @@ function DashChat(props) {
     console.log(videos, "answer");
 
     if(videos < 2) {
-      console.log(peerConnection1, "PC");
-      await peerConnection1.setRemoteDescription(
+      console.log(peerConnection, "PC");
+      await peerConnection.setRemoteDescription(
         new RTCSessionDescription(data.answer)
       );
     }
 
     // If first line busy
-    // if(videos >= 2) {
-    //   console.log(peerConnection1, "PC1");
-    //   await peerConnection1.setRemoteDescription(
-    //     new RTCSessionDescription(data.answer)
-    //   );
-    // }
+    if(videos >= 2) {
+      console.log(peerConnection1, "PC1");
+      await peerConnection1.setRemoteDescription(
+        new RTCSessionDescription(data.answer)
+      );
+    }
 
     videos = videos + 1;
 
@@ -547,6 +550,7 @@ function DashChat(props) {
       }
 
       stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+      stream.getTracks().forEach(track => peerConnection1.addTrack(track, stream));
     },
     error => {
       console.warn(error.message);
