@@ -283,8 +283,10 @@ function DashChat(props) {
         offer,
         to: socketId
       });
-  
-      existingCall.push(socketId);
+      
+      if(!existingCall.includes(socketId)) {
+        existingCall.push(socketId);
+      }
     }
 
     // If first line is busy
@@ -297,7 +299,9 @@ function DashChat(props) {
         to: socketId
       });
   
-      existingCall.push(socketId);
+      if(!existingCall.includes(socketId)) {
+        existingCall.push(socketId);
+      }
     }
   }
 
@@ -474,8 +478,11 @@ function DashChat(props) {
     if (!isAlreadyCalling && videos >= 2) {
       console.log("adding new member");
       callUser(data.socket);
+
+      let others = existingCall.filter(element => element !== data.socket);
+
       socket.emit("new-to-stream", {
-        to: existingCall,
+        to: others,
         newStream: data.socket
       });
       isAlreadyCalling = true;
@@ -485,6 +492,7 @@ function DashChat(props) {
   socket.on("add-to-stream", data => {
     // Other users start call with newly joined stream
     console.log("HERE");
+    console.log(data, "ADDED TO STREAM");
     callUser(data.socket);
   });
 
