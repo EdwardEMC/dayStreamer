@@ -15,9 +15,6 @@ let chatName;
 // For multi-user call
 let existingCall = [];
 
-// For dynamic screen generation
-let videos;
-
 // For adding new group video members
 let addingStream;
 
@@ -61,9 +58,6 @@ function DashChat(props) {
   // document.getElementById("notification").innerHTML = messageNotifications;
   // document.getElementById("notification").classList.add("hide");
   // user.id for logged in id; user.name for logged in username
-
-  // Initial number of starting screens
-  videos = 0;
 
   const user = JSON.parse(localStorage.getItem("User"));
 
@@ -281,10 +275,14 @@ function DashChat(props) {
     // Can create a new peer connection at a increase dynamic variable each time someone is called concurrently
     // Emit an addToStream socket on call accept to other users in current call
 
-    console.log(videos, "call");
+    if(!existingCall.includes(socketId)) {
+      existingCall.push(socketId);
+    }
+
+    console.log(existingCall);
     console.log(existingCall.length, "NUMBER OF CALLERS");
 
-    if(videos < 2) {
+    if(existingCall.length === 1) {
       const offer = await peerConnection.createOffer();
       await peerConnection.setLocalDescription(new RTCSessionDescription(offer));
 
@@ -292,14 +290,10 @@ function DashChat(props) {
         offer,
         to: socketId
       });
-      
-      if(!existingCall.includes(socketId)) {
-        existingCall.push(socketId);
-      }
     }
 
     // If first line is busy
-    if(videos >= 2) {
+    if(existingCall.length === 2) {
       const offer = await peerConnection1.createOffer();
       await peerConnection1.setLocalDescription(new RTCSessionDescription(offer));
       
@@ -307,10 +301,6 @@ function DashChat(props) {
         offer,
         to: socketId
       });
-  
-      if(!existingCall.includes(socketId)) {
-        existingCall.push(socketId);
-      }
     }
   }
 
@@ -403,9 +393,13 @@ function DashChat(props) {
   });
 
   socket.on("call-made", async data => {
+    if(!existingCall.includes(data.socket)) {
+      existingCall.push(data.socket);
+    }
+
     if (getCalled) {
       // Only confirm for first caller, other group members added freely
-      if(existingCall.length < 2) {
+      // if(existingCall.length === 1) {
         let confirmed = window.confirm(
           `User "Socket: ${data.socket}" wants to call you. Do accept this call?`
         );
@@ -414,11 +408,14 @@ function DashChat(props) {
           socket.emit("reject-call", {
             from: data.socket
           });
+
+          let index = existingCall.indexOf(data.socket);
+          existingCall.splice(index, 1);
+
           return;
         }
-      }
+      // }
 
-      existingCall.push(data.socket);
       let userCalling = document.getElementsByClassName(data.socket)
       let elToFocus = userCalling[0].getAttribute("id");
       // Show video area and call buttons for the receiver
@@ -427,10 +424,11 @@ function DashChat(props) {
       unselectUsersFromList();
       document.getElementById(elToFocus).click();
     };
-    console.log(videos, "videos");
+
+    console.log(existingCall);
     console.log(existingCall.length, "NUMBER OF CALLERS");
 
-    if(videos < 2) {
+    if(existingCall.length === 1) {
       await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
       const answer = await peerConnection.createAnswer();
 
@@ -445,7 +443,7 @@ function DashChat(props) {
     }
 
     // If first line busy
-    if(videos >= 2) {
+    if(existingCall.length === 2) {
       await peerConnection1.setRemoteDescription(new RTCSessionDescription(data.offer));
       const answer = await peerConnection.createAnswer();
 
@@ -457,15 +455,11 @@ function DashChat(props) {
       });
     }
 
-    videos = videos + 1;
-
     getCalled = true;
   });
 
   socket.on("answer-made", async data => {
-    console.log(videos, "answer");
-
-    if(videos < 2) {
+    if(existingCall.length === 1) {
       console.log(peerConnection, "PC");
       await peerConnection.setRemoteDescription(
         new RTCSessionDescription(data.answer)
@@ -473,22 +467,20 @@ function DashChat(props) {
     }
 
     // If first line busy
-    if(videos >= 2) {
+    if(existingCall.length === 2) {
       console.log(peerConnection1, "PC1");
       await peerConnection1.setRemoteDescription(
         new RTCSessionDescription(data.answer)
       );
     }
 
-    videos = videos + 1;
-
     // Only allows one call
-    if (!isAlreadyCalling && videos < 2) {
+    if (!isAlreadyCalling && existingCall.length === 1) {
       callUser(data.socket);
       isAlreadyCalling = true;
     }
 
-    if (!isAlreadyCalling && videos >= 2) {
+    if (!isAlreadyCalling && existingCall.length === 2) {
       console.log("adding new member");
       callUser(data.socket);
 
@@ -513,20 +505,20 @@ function DashChat(props) {
     console.log(data, "ADDED TO STREAM");
 
     isAlreadyCalling = false;
+    addingStream = false;
     // Working up to here (data.new is the socket of the newest person added to the primary call)
     // Make the other users call the new member (add auto-accept)
-    // callUser(data.new);
+    callUser(data.new);
   });
 
   socket.on("hang-up", () => {
     // Filter through existingCall array and remove the person who hung up
-    console.log("here");
+    // console.log("here");
     peerConnection.close();
 
     document.getElementById("video-space").classList.add("hide");
     document.getElementById("chat-panel").classList.remove("hide");
 
-    videos = 0;
     window.location.reload();
   });
 
@@ -709,8 +701,6 @@ function DashChat(props) {
     document.getElementById("video-space").classList.toggle("hide");
     document.getElementById("chat-panel").classList.remove("hide");
 
-    // Reset the video count to 0
-    videos = 0;
     window.location.reload();
   }
 
