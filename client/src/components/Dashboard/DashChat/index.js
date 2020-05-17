@@ -394,16 +394,16 @@ function DashChat(props) {
 
   socket.on("call-made", async data => {
     if (getCalled) {
-      let confirmed = window.confirm(
-        `User "Socket: ${data.socket}" wants to call you. Do accept this call?`
-      );
+      // let confirmed = window.confirm(
+      //   `User "Socket: ${data.socket}" wants to call you. Do accept this call?`
+      // );
 
-      if (!confirmed) {
-        socket.emit("reject-call", {
-          from: data.socket
-        });
-        return;
-      }
+      // if (!confirmed) {
+      //   socket.emit("reject-call", {
+      //     from: data.socket
+      //   });
+      //   return;
+      // }
 
       existingCall.push(data.socket);
       let userCalling = document.getElementsByClassName(data.socket)
@@ -498,6 +498,7 @@ function DashChat(props) {
   });
 
   socket.on("hang-up", () => {
+    // Filter through existingCall array and remove the person who hung up
     console.log("here");
     peerConnection.close();
 
