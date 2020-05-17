@@ -6,7 +6,7 @@ import "./style.css";
 
 const iconPath = process.env.PUBLIC_URL + '/assets/ChatIcons/';
 
-// let isAlreadyCalling = false;
+let isAlreadyCalling;
 let getCalled = false;
 let chatName;
 // Shows who is on the other line
@@ -115,6 +115,7 @@ function DashChat(props) {
       // Add button to delete conversation
 
       callButtonEl.addEventListener("click", () => {
+        isAlreadyCalling = false;
         callUser(document.getElementById(name).getAttribute("value"));
         // Show video area and call buttons for the caller
         document.getElementById("video-space").classList.remove("hide");
@@ -183,6 +184,7 @@ function DashChat(props) {
     usernameEl.innerHTML = `User: ${data.name}`;
 
     callButtonEl.addEventListener("click", () => {
+      isAlreadyCalling = false;
       callUser(data.socket);
       // Show video area and call buttons for the caller
       document.getElementById("video-space").classList.remove("hide");
@@ -466,10 +468,11 @@ function DashChat(props) {
 
     videos = videos + 1;
 
-    // if (!isAlreadyCalling) {
+    // Only allows one call
+    if (!isAlreadyCalling) {
       callUser(data.socket);
-    //   isAlreadyCalling = true;
-    // }
+      isAlreadyCalling = true;
+    }
   });
 
   socket.on("hang-up", () => {
