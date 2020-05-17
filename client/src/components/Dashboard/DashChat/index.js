@@ -275,7 +275,7 @@ function DashChat(props) {
 
     console.log(videos, "call");
 
-    if(videos === 0) {
+    if(videos < 2) {
       const offer = await peerConnection.createOffer();
       await peerConnection.setLocalDescription(new RTCSessionDescription(offer));
 
@@ -288,7 +288,7 @@ function DashChat(props) {
     }
 
     // If first line is busy
-    if(videos === 2) {
+    if(videos >= 2) {
       const offer = await peerConnection1.createOffer();
       await peerConnection1.setLocalDescription(new RTCSessionDescription(offer));
       
@@ -458,7 +458,7 @@ function DashChat(props) {
   socket.on("answer-made", async data => {
     console.log(videos, "answer");
 
-    if(videos === 0) {
+    if(videos < 2) {
       console.log(peerConnection, "PC");
       await peerConnection.setRemoteDescription(
         new RTCSessionDescription(data.answer)
@@ -466,7 +466,7 @@ function DashChat(props) {
     }
 
     // If first line busy
-    if(videos === 2) {
+    if(videos >= 2) {
       console.log(peerConnection1, "PC1");
       await peerConnection1.setRemoteDescription(
         new RTCSessionDescription(data.answer)
