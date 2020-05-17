@@ -6,7 +6,7 @@ import "./style.css";
 
 const iconPath = process.env.PUBLIC_URL + '/assets/ChatIcons/';
 
-let isAlreadyCalling = false;
+// let isAlreadyCalling = false;
 let getCalled = false;
 let chatName;
 // Shows who is on the other line
@@ -466,10 +466,10 @@ function DashChat(props) {
 
     videos = videos + 1;
 
-    if (!isAlreadyCalling) {
+    // if (!isAlreadyCalling) {
       callUser(data.socket);
-      isAlreadyCalling = true;
-    }
+    //   isAlreadyCalling = true;
+    // }
   });
 
   socket.on("hang-up", () => {
