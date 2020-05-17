@@ -501,14 +501,15 @@ function DashChat(props) {
   });
 
   socket.on("add-to-stream", data => {
-    console.log("HERE");
+    console.log("FOR PEOPLE ALREADY IN STREAM AND NEED TO CONNECT TO NEW MEMBER");
     console.log(data, "ADDED TO STREAM");
 
     isAlreadyCalling = false;
     addingStream = false;
     // Working up to here (data.new is the socket of the newest person added to the primary call)
     // Make the other users call the new member (add auto-accept)
-    callUser(data.new);
+    // Need a break between connection current member to primary and new member to everyone else
+    // callUser(data.new);
   });
 
   socket.on("hang-up", () => {
