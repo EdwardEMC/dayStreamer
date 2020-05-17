@@ -493,7 +493,7 @@ function DashChat(props) {
     // Other users start call with newly joined stream
     console.log("HERE");
     console.log(data, "ADDED TO STREAM");
-    // callUser(data.socket);
+    callUser(data.new);
   });
 
   socket.on("hang-up", () => {
