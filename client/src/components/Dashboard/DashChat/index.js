@@ -503,6 +503,7 @@ function DashChat(props) {
     document.getElementById("video-space").classList.add("hide");
     document.getElementById("chat-panel").classList.remove("hide");
 
+    videos = 0;
     window.location.reload();
   });
 
