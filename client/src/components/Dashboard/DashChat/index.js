@@ -283,7 +283,7 @@ function DashChat(props) {
     console.log(existingCall.length, "NUMBER OF CALLERS");
 
     if(existingCall.length === 1) {
-      const offer = await peerConnection.createOffer();
+      let offer = await peerConnection.createOffer();
       await peerConnection.setLocalDescription(new RTCSessionDescription(offer));
 
       socket.emit("call-user", {
@@ -294,7 +294,7 @@ function DashChat(props) {
 
     // If first line is busy
     if(existingCall.length === 2) {
-      const offer = await peerConnection1.createOffer();
+      let offer = await peerConnection1.createOffer();
       await peerConnection1.setLocalDescription(new RTCSessionDescription(offer));
       
       socket.emit("call-user", {
@@ -430,7 +430,7 @@ function DashChat(props) {
 
     if(existingCall.length === 1) {
       await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
-      const answer = await peerConnection.createAnswer();
+      let answer = await peerConnection.createAnswer();
 
       await peerConnection.setLocalDescription(new RTCSessionDescription(answer));
 
@@ -445,7 +445,7 @@ function DashChat(props) {
     // If first line busy
     if(existingCall.length === 2) {
       await peerConnection1.setRemoteDescription(new RTCSessionDescription(data.offer));
-      const answer = await peerConnection.createAnswer();
+      let answer = await peerConnection.createAnswer();
 
       await peerConnection1.setLocalDescription(new RTCSessionDescription(answer));
 
@@ -475,21 +475,13 @@ function DashChat(props) {
     }
 
     // Only allows one call
-    if (!isAlreadyCalling && existingCall.length === 1) {
+    if (!isAlreadyCalling) {
       callUser(data.socket);
-      isAlreadyCalling = true;
-    }
-
-    if (!isAlreadyCalling && existingCall.length === 2) {
-      console.log("adding new member");
-      callUser(data.socket);
-
       isAlreadyCalling = true;
     }
 
     let others = existingCall.filter(element => element !== data.socket);
-
-    // Cannot place here as is as it will create a loop each time someone calls
+    
     if(addingStream) {
       socket.emit("new-to-stream", {
         to: others,

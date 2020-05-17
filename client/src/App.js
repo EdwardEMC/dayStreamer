@@ -32,6 +32,7 @@ const NavRoutes = () => {
 
   socket.on("update-user-list", data => {
     onlineUsers = data.online;
+    console.log("updated");
     // console.log(data, "online users");
   });
 
@@ -41,7 +42,6 @@ const NavRoutes = () => {
       <div className="site-content">
         <Route exact path="/map-type/:map" component={Map} />
         <Route path="/profile" component={Profile} />
-        {/* <Route exact path="/chat" component={Chat} /> */}
         <Route 
           exact path="/chat"
           render = {(props) => <Chat {...props} socket={socket} online={onlineUsers}/>}
