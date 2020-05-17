@@ -450,6 +450,8 @@ function DashChat(props) {
 
       await peerConnection1.setLocalDescription(new RTCSessionDescription(answer));
 
+      console.log(peerConnection, "Other User");
+
       socket.emit("make-answer", {
         answer,
         to: data.socket
@@ -729,8 +731,9 @@ function DashChat(props) {
         <div className="video-chat-container">
           <div id="video-streams" className="video-container">
             <div className="row no-gutters">
-              <video autoPlay className="remote-video" id={"remote-video1"}></video>
-              <video autoPlay className="remote-video" id={"remote-video2"}></video>
+              <div className="remote-video"></div>
+              <video autoPlay className="group-video" id={"remote-video1"}></video>
+              <video autoPlay className="group-video" id={"remote-video2"}></video>
             </div>
             <video autoPlay muted className="local-video" id="local-video"></video>
             <div id="options">
