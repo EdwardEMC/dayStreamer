@@ -9,12 +9,9 @@ const iconPath = process.env.PUBLIC_URL + '/assets/ChatIcons/';
 let isAlreadyCalling;
 let getCalled = false;
 let chatName;
-// Shows who is on the other line
-// let existingCall;
 
 // For multi-user call
 let existingCall = [];
-
 // For adding new group video members
 let addingStream;
 
@@ -24,7 +21,6 @@ let addingStream;
 // Array to hold currently online friends (relates to the offline/online icons)
 let onlineFriends = [];
 let socket;
-// let connected = false;
 
 const { RTCPeerConnection, RTCSessionDescription } = window;
 
@@ -48,7 +44,6 @@ let peerConnection1 = new RTCPeerConnection();
 // let connections = [];
 
 function DashChat(props) {
-  // console.log(props.online, "ONLINE USERS");
   socket = props.socket;
 
   // If already in a call, show video space
@@ -56,16 +51,13 @@ function DashChat(props) {
     document.getElementById("video-space").classList.remove("hide");
   }
 
-  // Updates the user list each time user visits the messenger, incase of missed update-user-list emit
-  updateUserList(props.online);
-
   // Keeping track of notifications
   // let messageNotifications = 0;
   
   // document.getElementById("notification").innerHTML = messageNotifications;
   // document.getElementById("notification").classList.add("hide");
-  // user.id for logged in id; user.name for logged in username
 
+  // user.id for logged in id; user.name for logged in username
   const user = JSON.parse(localStorage.getItem("User"));
 
   //===========================================================================
@@ -74,6 +66,9 @@ function DashChat(props) {
   API.getChats()
     .then(function(result) {
       createFriendItemContainer(result.data.chats);
+      // Updates the user list each time user visits the messenger, incase of missed update-user-list emit
+      console.log(props.online);
+      updateUserList(props.online);
     }) // If there's an error, log the error
     .catch(function(err) {
       console.log(err);
@@ -150,7 +145,6 @@ function DashChat(props) {
 
         API.getMessages(chatName)
         .then(function(result) {
-          // console.log(result, "CHAT MESSAGES");
           displayMessages(result.data);
         })
         .catch(function(err) {
@@ -313,8 +307,7 @@ function DashChat(props) {
     }
 
     // If first line is busy
-    // if(existingCall.length === 2) {
-    if(existingCall.length > 1) {
+    if(existingCall.length === 2) {
       let offer = await peerConnection1.createOffer();
       await peerConnection1.setLocalDescription(new RTCSessionDescription(offer));
       
@@ -326,44 +319,21 @@ function DashChat(props) {
   }
 
   function updateUserList(socketIds) {
-    // console.log(socketIds, "ONLINE");
     const activeUserContainer = document.getElementById("active-user-container");
 
-    let friendList = [];
-
-    //Making sure the socket doesn't populate the active list if it is a friend
-    API.getChats()
-    .then(function(result) {
-      result.data.chats.map(element => {
-        let username = user.name !== element.user1 ? element.user1 : element.user2;
-        return friendList.push(username);
-      });  
-    })
-    .then(function() {
-      socketIds.forEach(data => {
-        // console.log(friendList, "Friendlist");
-        // console.log(data, "INSIDE forEach");
-        const alreadyExistingUser = document.getElementById(data.name);
-        if (!alreadyExistingUser && data.name !== user.name && !friendList.includes(data.name)) {
-          const userContainerEl = createUserItemContainer(data);
-
-          activeUserContainer.append(userContainerEl);
-        }
-        else {
-          // Push to onlineFriends array as when refreshing or changing component client side knows whose still online
-          // This part still needs work
-          if(data.name) {
-            onlineFriends.push({name: data.name, socket: data.socket});
-            document.getElementById(data.name).setAttribute("value", data.socket);
-            document.getElementById(data.name).classList.add(data.socket);
-            document.getElementById(data.name + "offline").classList.add("hide");
-            document.getElementById(data.name + "online").classList.remove("hide");
-          }
-        }
-      });
-    }) // If there's an error, log the error
-    .catch(function(err) {
-      console.log(err);
+    socketIds.forEach(data => {
+      const alreadyExistingUser = document.getElementById(data.name);
+      if (alreadyExistingUser) {
+        onlineFriends.push({name: data.name, socket: data.socket});
+        document.getElementById(data.name).setAttribute("value", data.socket);
+        document.getElementById(data.name).classList.add(data.socket);
+        document.getElementById(data.name + "offline").classList.add("hide");
+        document.getElementById(data.name + "online").classList.remove("hide");
+      }
+      else if(data.name !== user.name){
+        const userContainerEl = createUserItemContainer(data);
+        activeUserContainer.append(userContainerEl);
+      }
     });
   }
 
@@ -444,7 +414,11 @@ function DashChat(props) {
 
       // unselectUsersFromList();
       // document.getElementById(elToFocus).click();
-    };
+      getCalled = false;
+    }
+    else {
+      getCalled = true;
+    }
 
     console.log(existingCall);
     console.log(existingCall.length, "NUMBER OF CALLERS");
@@ -464,8 +438,7 @@ function DashChat(props) {
     }
 
     // If first line busy
-    // if(existingCall.length === 2) {
-    if(existingCall.length > 1) {
+    if(existingCall.length === 2) {
       await peerConnection1.setRemoteDescription(new RTCSessionDescription(data.offer));
       let answer = await peerConnection1.createAnswer();
 
@@ -478,8 +451,6 @@ function DashChat(props) {
         to: data.socket
       });
     }
-
-    getCalled = true;
   });
 
   socket.on("answer-made", async data => {
@@ -491,8 +462,7 @@ function DashChat(props) {
     }
 
     // If first line busy
-    // if(existingCall.length === 2) {
-    if(existingCall.length > 1) {
+    if(existingCall.length === 2) {
       console.log(peerConnection1, "PC1");
       await peerConnection1.setRemoteDescription(
         new RTCSessionDescription(data.answer)
@@ -505,9 +475,8 @@ function DashChat(props) {
       isAlreadyCalling = true;
     }
 
-    let others = existingCall.filter(element => element !== data.socket);
-
     if(addingStream) {
+      let others = existingCall.filter(element => element !== data.socket);
       socket.emit("new-to-stream", {
         to: others,
         newStream: data.socket
@@ -536,6 +505,9 @@ function DashChat(props) {
 
     document.getElementById("video-space").classList.add("hide");
     document.getElementById("chat-panel").classList.remove("hide");
+
+    firstLine = true;
+    secondLine = true;
 
     window.location.reload();
   });
@@ -731,6 +703,9 @@ function DashChat(props) {
     document.getElementById("video-space").classList.toggle("hide");
     document.getElementById("chat-panel").classList.remove("hide");
 
+    firstLine = true;
+    secondLine = true;
+
     window.location.reload();
   }
 
@@ -745,21 +720,20 @@ function DashChat(props) {
           Select a user.
         </h2>
         <div id="user-list-panel">
-            {/* collapsible panels */}
-            <button onClick={collapse} value="active-user-container" className="panel-title collapsible">Active Users</button>
-            <div className="active-users-panel content" id="active-user-container">
-              {/* area for active chats */}
-            </div>
-            <button onClick={collapse} value="friend-user-container" className="panel-title collapsible">Conversations</button>
-            <div className="friend-users-panel content" id="friend-user-container">
-              {/* area for friends chats */}
-            </div>
-            <button onClick={collapse} value="other-user-container" className="panel-title collapsible">Team Chats</button>
-            <div className="other-users-panel content" id="other-user-container">
-              {/* area for others chats */}
-            </div>
+          <button onClick={collapse} value="active-user-container" className="panel-title collapsible">Active Users</button>
+          <div className="active-users-panel content" id="active-user-container">
+            {/* area for active chats */}
+          </div>
+          <button onClick={collapse} value="friend-user-container" className="panel-title collapsible">Conversations</button>
+          <div className="friend-users-panel content" id="friend-user-container">
+            {/* area for friends chats */}
+          </div>
+          <button onClick={collapse} value="other-user-container" className="panel-title collapsible">Team Chats</button>
+          <div className="other-users-panel content" id="other-user-container">
+            {/* area for others chats */}
           </div>
         </div>
+      </div>
       <div id="video-space" className="col-lg panels hide">
         <div className="video-chat-container">
           <div id="video-streams" className="video-container">
@@ -767,11 +741,9 @@ function DashChat(props) {
               <div className="video-box">
                 <video autoPlay muted className="local-video" id="local-video"></video>
               </div>
-              {/* <div className="video-box">
-                <video autoPlay className="group-video" id={"remote-video1"}></video>
-              </div> */}
             </div>
-            <video autoPlay muted className="local-video-single hide" id="local-video"></video>
+            {/* Video below for one to one calls only */}
+            {/* <video autoPlay muted className="local-video-single hide" id="local-video"></video> */}
             <div id="options">
               <div id="call-buttons" className="button-container">  
                 <button onClick={hangup} className="btn btn-danger">Hang Up</button>
