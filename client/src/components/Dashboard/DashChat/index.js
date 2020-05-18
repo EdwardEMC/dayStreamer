@@ -211,6 +211,7 @@ function DashChat(props) {
       document.getElementById("video-space").classList.remove("hide");
       if(existingCall.length >= 1) {
         addingStream = true;
+        callers += 1;
       }
     });
 
@@ -413,14 +414,9 @@ function DashChat(props) {
       // Show video area and call buttons for the receiver
       document.getElementById("video-space").classList.remove("hide");
 
-      callers += 1;
-
       // unselectUsersFromList();
       // document.getElementById(elToFocus).click();
       getCalled = false;
-    }
-    else {
-      getCalled = true;
     }
 
     console.log(existingCall);
@@ -454,6 +450,11 @@ function DashChat(props) {
     //     to: data.socket
     //   });
     // }
+
+    if(!getCalled) {
+      getCalled = true;
+      callers += 1;
+    }
   });
 
   socket.on("answer-made", async data => {
@@ -478,7 +479,6 @@ function DashChat(props) {
     }
     else {
       isAlreadyCalling = true;
-      callers += 1;
     }
 
     if(addingStream) {
