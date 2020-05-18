@@ -1,6 +1,5 @@
 import React from "react";
 import API from "../../utils/API";
-// import io from "socket.io-client";
 import formatTime from "../../utils/formatTime";
 import "./style.css";
 
@@ -10,10 +9,8 @@ let isAlreadyCalling;
 let getCalled = false;
 let chatName;
 
-// For multi-user call
-let existingCall = [];
-// For adding new group video members
-let addingStream;
+let existingCall = []; // For multi-user call
+let addingStream; // For adding new group video members
 
 // Keeping track of notifications
 // let messageNotifications;
@@ -26,7 +23,7 @@ const { RTCPeerConnection, RTCSessionDescription } = window;
 
 // Limit to only one video box creation (chrome bug triggering twice)
 let firstLine = true;
-// let secondLine = true;
+let secondLine = true;
 
 // Need to create a new peerConnection each time a person joins
 // let peerConnection = new RTCPeerConnection();
@@ -46,8 +43,8 @@ let connections = [new RTCPeerConnection(), new RTCPeerConnection()];
 
 function DashChat(props) {
   socket = props.socket;
-  // If already in a call, show video space
-  if(existingCall[0]) {
+
+  if(existingCall[0]) { // If already in a call, show video space
     document.getElementById("video-space").classList.remove("hide");
   }
 
@@ -563,11 +560,11 @@ function DashChat(props) {
 
   connections[1].ontrack = function({ streams: [stream] }) {
     console.log("PC");
-    if(firstLine) {
+    if(secondLine) {
       const videoContainerEL = createVideoBox();
       document.getElementById("video-boxes").append(videoContainerEL);
     }
-    firstLine = false;
+    secondLine = false;
 
     const remoteVideo = document.getElementById("remote-video2");
     if (remoteVideo) {
