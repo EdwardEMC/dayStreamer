@@ -211,7 +211,6 @@ function DashChat(props) {
       document.getElementById("video-space").classList.remove("hide");
       if(existingCall.length >= 1) {
         addingStream = true;
-        callers += 1;
       }
     });
 
@@ -418,11 +417,14 @@ function DashChat(props) {
       // document.getElementById(elToFocus).click();
       getCalled = false;
     }
+    else {
+      getCalled = true;
+    }
 
     console.log(existingCall);
     console.log(existingCall.length, "NUMBER OF CALLERS");
 
-    if(existingCall.length === 1) {
+    if(existingCall.length >= 1) {
       await connections[callers].setRemoteDescription(new RTCSessionDescription(data.offer));
       let answer = await connections[callers].createAnswer();
 
@@ -450,15 +452,10 @@ function DashChat(props) {
     //     to: data.socket
     //   });
     // }
-
-    if(!getCalled) {
-      getCalled = true;
-      callers += 1;
-    }
   });
 
   socket.on("answer-made", async data => {
-    if(existingCall.length === 1) {
+    if(existingCall.length >= 1) {
       console.log(connections[callers], "PC");
       await connections[callers].setRemoteDescription(
         new RTCSessionDescription(data.answer)
@@ -476,8 +473,7 @@ function DashChat(props) {
     // Only allows one call
     if (!isAlreadyCalling) {
       callUser(data.socket);
-    }
-    else {
+      // callers += 1;
       isAlreadyCalling = true;
     }
 
@@ -552,6 +548,7 @@ function DashChat(props) {
     if(firstLine) {
       const videoContainerEL = createVideoBox();
       document.getElementById("video-boxes").append(videoContainerEL);
+      callers += 1;
     }
     firstLine = false;
 
@@ -566,6 +563,7 @@ function DashChat(props) {
     if(firstLine) {
       const videoContainerEL = createVideoBox();
       document.getElementById("video-boxes").append(videoContainerEL);
+      callers += 1;
     }
     firstLine = false;
 
