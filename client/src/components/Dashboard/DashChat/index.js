@@ -40,13 +40,12 @@ let firstLine = true;
 // let peerConnection8 = new RTCPeerConnection();
 // let peerConnection9 = new RTCPeerConnection();
 
-let callers = 0;
+let callers;
 // Array to hold peerConnections
 let connections = [new RTCPeerConnection(), new RTCPeerConnection()];
 
 function DashChat(props) {
   socket = props.socket;
-
   // If already in a call, show video space
   if(existingCall[0]) {
     document.getElementById("video-space").classList.remove("hide");
@@ -295,7 +294,10 @@ function DashChat(props) {
       existingCall.push(socketId);
     }
     console.log(existingCall, "AFTER");
-    console.log(existingCall, "NUMBER OF CALLERS");
+
+    callers = existingCall.length -1;
+
+    console.log(callers, "CALLERS");
 
     if(existingCall.length >= 1) {
       let offer = await connections[callers].createOffer();
@@ -388,6 +390,8 @@ function DashChat(props) {
     if(!existingCall.includes(data.socket)) {
       existingCall.push(data.socket);
     }
+
+    callers = existingCall.length -1;
 
     if (getCalled) {
       // Only confirm for first caller, other group members added freely
@@ -548,7 +552,6 @@ function DashChat(props) {
     if(firstLine) {
       const videoContainerEL = createVideoBox();
       document.getElementById("video-boxes").append(videoContainerEL);
-      callers += 1;
     }
     firstLine = false;
 
@@ -563,7 +566,6 @@ function DashChat(props) {
     if(firstLine) {
       const videoContainerEL = createVideoBox();
       document.getElementById("video-boxes").append(videoContainerEL);
-      callers += 1;
     }
     firstLine = false;
 
