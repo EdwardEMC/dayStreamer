@@ -110,18 +110,22 @@
   max-width: 150px;
 } */
 
+.video-box {
+  display: inline;
+}
+
 .local-video {
   border: 1px solid #cddfe7;
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
   border-radius: 5px;
-  max-width: 40%;
+  max-width: 50%;
 }
 
 .group-video {
   border: 1px solid #cddfe7;
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
   border-radius: 5px;
-  max-width: 40%;
+  max-width: 50%;
 }
 
 #video-space:hover #options {

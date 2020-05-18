@@ -28,6 +28,10 @@ let socket;
 
 const { RTCPeerConnection, RTCSessionDescription } = window;
 
+// Limit to only one video box creation (chrome bug triggering twice)
+let firstLine = true;
+let secondLine = true;
+
 // Need to create a new peerConnection each time a person joins
 let peerConnection = new RTCPeerConnection();
 let peerConnection1 = new RTCPeerConnection();
@@ -39,6 +43,9 @@ let peerConnection1 = new RTCPeerConnection();
 // let peerConnection7 = new RTCPeerConnection();
 // let peerConnection8 = new RTCPeerConnection();
 // let peerConnection9 = new RTCPeerConnection();
+
+// Array to hold peerConnections
+// let connections = [];
 
 function DashChat(props) {
   // console.log(props.online, "ONLINE USERS");
@@ -153,6 +160,20 @@ function DashChat(props) {
 
       return document.getElementById("friend-user-container").append(userContainerEl);
     });
+  }
+
+  function createVideoBox() {
+    const videoContainerEl = document.createElement("div");
+    const videoEl = document.createElement("video");
+    
+    videoContainerEl.setAttribute("class", "video-box");
+    videoEl.setAttribute("class", "group-video");
+    videoEl.setAttribute("id", "remote-video"+ existingCall.length);
+    videoEl.autoplay = true;
+
+    videoContainerEl.append(videoEl);
+    
+    return videoContainerEl;
   }
 
   function unselectUsersFromList() {
@@ -505,7 +526,7 @@ function DashChat(props) {
     // Working up to here (data.new is the socket of the newest person added to the primary call)
     // Make the other users call the new member (add auto-accept)
     // Need a break between connection current member to primary and new member to everyone else
-    // callUser(data.new);
+    callUser(data.new);
   });
 
   socket.on("hang-up", () => {
@@ -550,6 +571,12 @@ function DashChat(props) {
 
   peerConnection.ontrack = function({ streams: [stream] }) {
     console.log("PC");
+    if(firstLine) {
+      const videoContainerEL = createVideoBox();
+      document.getElementById("video-boxes").append(videoContainerEL);
+    }
+    firstLine = false;
+
     const remoteVideo = document.getElementById("remote-video1");
     if (remoteVideo) {
       remoteVideo.srcObject = stream;
@@ -558,6 +585,12 @@ function DashChat(props) {
 
   peerConnection1.ontrack = function({ streams: [stream] }) {
     console.log("PC1");
+    if(secondLine) {
+      const videoContainerEL = createVideoBox();
+      document.getElementById("video-boxes").append(videoContainerEL);
+    }
+    secondLine = false;
+
     const remoteVideo = document.getElementById("remote-video2");
     if (remoteVideo) {
       remoteVideo.srcObject = stream;
@@ -730,16 +763,13 @@ function DashChat(props) {
       <div id="video-space" className="col-lg panels hide">
         <div className="video-chat-container">
           <div id="video-streams" className="video-container">
-            <div className="row no-gutters">
-              <div className="col-md">
+            <div id="video-boxes">
+              <div className="video-box">
                 <video autoPlay muted className="local-video" id="local-video"></video>
               </div>
-              <div className="col-md">
+              {/* <div className="video-box">
                 <video autoPlay className="group-video" id={"remote-video1"}></video>
-              </div>
-              <div className="col-md">
-                <video autoPlay className="group-video" id={"remote-video2"}></video>
-              </div>
+              </div> */}
             </div>
             <video autoPlay muted className="local-video-single hide" id="local-video"></video>
             <div id="options">
