@@ -569,7 +569,7 @@ function DashChat(props) {
     }
     firstLine = false;
 
-    const remoteVideo = document.getElementById("remote-video1");
+    const remoteVideo = document.getElementById("remote-video2");
     if (remoteVideo) {
       remoteVideo.srcObject = stream;
     }
