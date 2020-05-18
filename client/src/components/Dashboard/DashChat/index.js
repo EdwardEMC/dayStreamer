@@ -26,11 +26,11 @@ const { RTCPeerConnection, RTCSessionDescription } = window;
 
 // Limit to only one video box creation (chrome bug triggering twice)
 let firstLine = true;
-let secondLine = true;
+// let secondLine = true;
 
 // Need to create a new peerConnection each time a person joins
-let peerConnection = new RTCPeerConnection();
-let peerConnection1 = new RTCPeerConnection();
+// let peerConnection = new RTCPeerConnection();
+// let peerConnection1 = new RTCPeerConnection();
 // let peerConnection2 = new RTCPeerConnection();
 // let peerConnection3 = new RTCPeerConnection();
 // let peerConnection4 = new RTCPeerConnection();
@@ -40,8 +40,9 @@ let peerConnection1 = new RTCPeerConnection();
 // let peerConnection8 = new RTCPeerConnection();
 // let peerConnection9 = new RTCPeerConnection();
 
+let callers = 0;
 // Array to hold peerConnections
-// let connections = [];
+let connections = [new RTCPeerConnection(), new RTCPeerConnection()];
 
 function DashChat(props) {
   socket = props.socket;
@@ -296,9 +297,9 @@ function DashChat(props) {
     console.log(existingCall, "AFTER");
     console.log(existingCall, "NUMBER OF CALLERS");
 
-    if(existingCall.length === 1) {
-      let offer = await peerConnection.createOffer();
-      await peerConnection.setLocalDescription(new RTCSessionDescription(offer));
+    if(existingCall.length >= 1) {
+      let offer = await connections[callers].createOffer();
+      await connections[callers].setLocalDescription(new RTCSessionDescription(offer));
 
       socket.emit("call-user", {
         offer,
@@ -307,15 +308,15 @@ function DashChat(props) {
     }
 
     // If first line is busy
-    if(existingCall.length === 2) {
-      let offer = await peerConnection1.createOffer();
-      await peerConnection1.setLocalDescription(new RTCSessionDescription(offer));
+    // if(existingCall.length === 2) {
+    //   let offer = await peerConnection1.createOffer();
+    //   await peerConnection1.setLocalDescription(new RTCSessionDescription(offer));
       
-      socket.emit("call-user", {
-        offer,
-        to: socketId
-      });
-    }
+    //   socket.emit("call-user", {
+    //     offer,
+    //     to: socketId
+    //   });
+    // }
   }
 
   function updateUserList(socketIds) {
@@ -412,6 +413,8 @@ function DashChat(props) {
       // Show video area and call buttons for the receiver
       document.getElementById("video-space").classList.remove("hide");
 
+      callers += 1;
+
       // unselectUsersFromList();
       // document.getElementById(elToFocus).click();
       getCalled = false;
@@ -424,12 +427,12 @@ function DashChat(props) {
     console.log(existingCall.length, "NUMBER OF CALLERS");
 
     if(existingCall.length === 1) {
-      await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
-      let answer = await peerConnection.createAnswer();
+      await connections[callers].setRemoteDescription(new RTCSessionDescription(data.offer));
+      let answer = await connections[callers].createAnswer();
 
-      await peerConnection.setLocalDescription(new RTCSessionDescription(answer));
+      await connections[callers].setLocalDescription(new RTCSessionDescription(answer));
 
-      console.log(peerConnection, "Other User");
+      console.log(connections[callers], "Other User");
 
       socket.emit("make-answer", {
         answer,
@@ -438,40 +441,41 @@ function DashChat(props) {
     }
 
     // If first line busy
-    if(existingCall.length === 2) {
-      await peerConnection1.setRemoteDescription(new RTCSessionDescription(data.offer));
-      let answer = await peerConnection1.createAnswer();
+    // if(existingCall.length === 2) {
+    //   await peerConnection1.setRemoteDescription(new RTCSessionDescription(data.offer));
+    //   let answer = await peerConnection1.createAnswer();
 
-      await peerConnection1.setLocalDescription(new RTCSessionDescription(answer));
+    //   await peerConnection1.setLocalDescription(new RTCSessionDescription(answer));
 
-      console.log(peerConnection1, "Other User");
-
-      socket.emit("make-answer", {
-        answer,
-        to: data.socket
-      });
-    }
+    //   console.log(peerConnection1, "Other User");
+      
+    //   socket.emit("make-answer", {
+    //     answer,
+    //     to: data.socket
+    //   });
+    // }
   });
 
   socket.on("answer-made", async data => {
     if(existingCall.length === 1) {
-      console.log(peerConnection, "PC");
-      await peerConnection.setRemoteDescription(
+      console.log(connections[callers], "PC");
+      await connections[callers].setRemoteDescription(
         new RTCSessionDescription(data.answer)
       );
     }
 
     // If first line busy
-    if(existingCall.length === 2) {
-      console.log(peerConnection1, "PC1");
-      await peerConnection1.setRemoteDescription(
-        new RTCSessionDescription(data.answer)
-      );
-    }
+    // if(existingCall.length === 2) {
+    //   console.log(peerConnection1, "PC1");
+    //   await peerConnection1.setRemoteDescription(
+    //     new RTCSessionDescription(data.answer)
+    //   );
+    // }
 
     // Only allows one call
     if (!isAlreadyCalling) {
       callUser(data.socket);
+      callers += 1;
       isAlreadyCalling = true;
     }
 
@@ -501,13 +505,13 @@ function DashChat(props) {
   socket.on("hang-up", () => {
     // Filter through existingCall array and remove the person who hung up
     // console.log("here");
-    peerConnection.close();
+    connections[callers].close();
 
     document.getElementById("video-space").classList.add("hide");
     document.getElementById("chat-panel").classList.remove("hide");
 
     firstLine = true;
-    secondLine = true;
+    // secondLine = true;
 
     window.location.reload();
   });
@@ -541,7 +545,7 @@ function DashChat(props) {
     // }
   });
 
-  peerConnection.ontrack = function({ streams: [stream] }) {
+  connections[callers].ontrack = function({ streams: [stream] }) {
     console.log("PC");
     if(firstLine) {
       const videoContainerEL = createVideoBox();
@@ -555,19 +559,19 @@ function DashChat(props) {
     }
   };
 
-  peerConnection1.ontrack = function({ streams: [stream] }) {
-    console.log("PC1");
-    if(secondLine) {
-      const videoContainerEL = createVideoBox();
-      document.getElementById("video-boxes").append(videoContainerEL);
-    }
-    secondLine = false;
+  // peerConnection1.ontrack = function({ streams: [stream] }) {
+  //   console.log("PC1");
+  //   if(secondLine) {
+  //     const videoContainerEL = createVideoBox();
+  //     document.getElementById("video-boxes").append(videoContainerEL);
+  //   }
+  //   secondLine = false;
 
-    const remoteVideo = document.getElementById("remote-video2");
-    if (remoteVideo) {
-      remoteVideo.srcObject = stream;
-    }
-  };
+  //   const remoteVideo = document.getElementById("remote-video2");
+  //   if (remoteVideo) {
+  //     remoteVideo.srcObject = stream;
+  //   }
+  // };
 
   navigator.getUserMedia(
     { video: true, audio: true },
@@ -578,8 +582,9 @@ function DashChat(props) {
       }
 
       // Need to add streams for each new call
-      stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
-      stream.getTracks().forEach(track => peerConnection1.addTrack(track, stream));
+      stream.getTracks().forEach(track => connections[0].addTrack(track, stream));
+      stream.getTracks().forEach(track => connections[1].addTrack(track, stream));
+      // stream.getTracks().forEach(track => peerConnection1.addTrack(track, stream));
     },
     error => {
       console.warn(error.message);
@@ -692,7 +697,7 @@ function DashChat(props) {
   };
 
   function hangup() {
-    peerConnection.close();
+    connections[0].close();
 
     existingCall.forEach(call => {
       socket.emit("hang-up", {
@@ -704,7 +709,7 @@ function DashChat(props) {
     document.getElementById("chat-panel").classList.remove("hide");
 
     firstLine = true;
-    secondLine = true;
+    // secondLine = true;
 
     window.location.reload();
   }
