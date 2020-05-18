@@ -545,7 +545,21 @@ function DashChat(props) {
     // }
   });
 
-  connections[callers].ontrack = function({ streams: [stream] }) {
+  connections[0].ontrack = function({ streams: [stream] }) {
+    console.log("PC");
+    if(firstLine) {
+      const videoContainerEL = createVideoBox();
+      document.getElementById("video-boxes").append(videoContainerEL);
+    }
+    firstLine = false;
+
+    const remoteVideo = document.getElementById("remote-video1");
+    if (remoteVideo) {
+      remoteVideo.srcObject = stream;
+    }
+  };
+
+  connections[1].ontrack = function({ streams: [stream] }) {
     console.log("PC");
     if(firstLine) {
       const videoContainerEL = createVideoBox();
