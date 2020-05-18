@@ -32,8 +32,7 @@ const NavRoutes = () => {
 
   socket.on("update-user-list", data => {
     onlineUsers = data.online;
-    console.log("updated");
-    // console.log(data, "online users");
+    console.log(data, "updated");
   });
 
   return (
