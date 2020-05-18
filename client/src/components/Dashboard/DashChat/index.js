@@ -555,7 +555,7 @@ function DashChat(props) {
       busyLine = true;
     }
 
-    const remoteVideo = document.getElementById("remote-video1");
+    const remoteVideo = document.getElementById("remote-video" + existingCall.length);
     if (remoteVideo) {
       remoteVideo.srcObject = stream;
     }
