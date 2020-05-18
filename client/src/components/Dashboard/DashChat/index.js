@@ -22,8 +22,8 @@ let socket;
 const { RTCPeerConnection, RTCSessionDescription } = window;
 
 // Limit to only one video box creation (chrome bug triggering twice)
-let firstLine = true;
-let secondLine = true;
+let busyLine = true;
+// let secondLine = true;
 
 // Need to create a new peerConnection each time a person joins
 // let peerConnection = new RTCPeerConnection();
@@ -37,7 +37,7 @@ let secondLine = true;
 // let peerConnection8 = new RTCPeerConnection();
 // let peerConnection9 = new RTCPeerConnection();
 
-let callers;
+let callers = 0;
 // Array to hold peerConnections
 let connections = [new RTCPeerConnection(), new RTCPeerConnection()];
 
@@ -509,7 +509,7 @@ function DashChat(props) {
     document.getElementById("video-space").classList.add("hide");
     document.getElementById("chat-panel").classList.remove("hide");
 
-    firstLine = true;
+    // firstLine = true;
     // secondLine = true;
 
     window.location.reload();
@@ -544,13 +544,16 @@ function DashChat(props) {
     // }
   });
 
-  connections[0].ontrack = function({ streams: [stream] }) {
+  connections[callers].ontrack = function({ streams: [stream] }) {
     console.log("PC");
-    if(firstLine) {
+    if(busyLine) {
       const videoContainerEL = createVideoBox();
       document.getElementById("video-boxes").append(videoContainerEL);
+      busyLine = false;
     }
-    firstLine = false;
+    else {
+      busyLine = true;
+    }
 
     const remoteVideo = document.getElementById("remote-video1");
     if (remoteVideo) {
@@ -558,19 +561,19 @@ function DashChat(props) {
     }
   };
 
-  connections[1].ontrack = function({ streams: [stream] }) {
-    console.log("PC");
-    if(secondLine) {
-      const videoContainerEL = createVideoBox();
-      document.getElementById("video-boxes").append(videoContainerEL);
-    }
-    secondLine = false;
+  // connections[1].ontrack = function({ streams: [stream] }) {
+  //   console.log("PC");
+  //   if(secondLine) {
+  //     const videoContainerEL = createVideoBox();
+  //     document.getElementById("video-boxes").append(videoContainerEL);
+  //   }
+  //   secondLine = false;
 
-    const remoteVideo = document.getElementById("remote-video2");
-    if (remoteVideo) {
-      remoteVideo.srcObject = stream;
-    }
-  };
+  //   const remoteVideo = document.getElementById("remote-video2");
+  //   if (remoteVideo) {
+  //     remoteVideo.srcObject = stream;
+  //   }
+  // };
 
   // peerConnection1.ontrack = function({ streams: [stream] }) {
   //   console.log("PC1");
@@ -721,7 +724,7 @@ function DashChat(props) {
     document.getElementById("video-space").classList.toggle("hide");
     document.getElementById("chat-panel").classList.remove("hide");
 
-    firstLine = true;
+    // firstLine = true;
     // secondLine = true;
 
     window.location.reload();
