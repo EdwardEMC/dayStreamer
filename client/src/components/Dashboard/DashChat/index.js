@@ -475,8 +475,10 @@ function DashChat(props) {
     // Only allows one call
     if (!isAlreadyCalling) {
       callUser(data.socket);
-      callers += 1;
+    }
+    else {
       isAlreadyCalling = true;
+      callers += 1;
     }
 
     if(addingStream) {
