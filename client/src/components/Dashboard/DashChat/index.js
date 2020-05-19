@@ -3,30 +3,21 @@ import API from "../../utils/API";
 import formatTime from "../../utils/formatTime";
 import "./style.css";
 
+//https://github.com/webrtc/samples/blob/gh-pages/src/content/peerconnection/multiple/js/main.js
+
 const iconPath = process.env.PUBLIC_URL + '/assets/ChatIcons/';
+const { RTCPeerConnection, RTCSessionDescription } = window;
 
 let isAlreadyCalling;
 let getCalled = false;
 let chatName;
-
-
 let existingCall = []; // For multi-user call
 let addingStream; // For adding new group video members
-
-// Keeping track of notifications
-// let messageNotifications;
-
-// Array to hold currently online friends (relates to the offline/online icons)
-let onlineFriends = [];
+// let messageNotifications; // Keeping track of notifications
+let onlineFriends = []; // Array to hold currently online friends
 let socket;
-
-const { RTCPeerConnection, RTCSessionDescription } = window;
-
-// Limit to only one video box creation (chrome bug triggering twice)
-let busyLine = true;
-
-// Array to hold peerConnections
-let connections = [{id:0, connection:new RTCPeerConnection()}];
+let busyLine = true; // Limit to only one video box creation
+let connections = [{id:0, connection:new RTCPeerConnection()}]; // Array to hold peerConnections
 let callers = 0;
 
 function DashChat(props) {
@@ -261,16 +252,8 @@ function DashChat(props) {
   };
 
   //===========================================================================
-  //===========================================================================
-  //===========================================================================
-  //===========================================================================
-  //===========================================================================
-  //===========================================================================
-  //===========================================================================
   // Calling Area
   //===========================================================================
-  //https://github.com/webrtc/samples/blob/gh-pages/src/content/peerconnection/multiple/js/main.js
-
   async function callUser(socketId) {
     // After creating dynamic variable set it to = new RTCPeerConnection();
     // Can create a new peer connection at a increase dynamic variable each time someone is called concurrently
@@ -280,13 +263,9 @@ function DashChat(props) {
       existingCall.push(socketId);
       connections.push({id:1, connection:new RTCPeerConnection()});
       localStream();
-      // callers += 1;
     }
-    console.log(existingCall, "AFTER");
 
     callers = existingCall.length -1;
-
-    console.log(callers, "CALLERS");
 
     if(existingCall.length >= 1) {
       let offer = await connections[callers].connection.createOffer();
@@ -369,14 +348,12 @@ function DashChat(props) {
       existingCall.push(data.socket);
       connections.push({id:1, connection:new RTCPeerConnection()});
       localStream();
-      // callers += 1;
     }
 
     callers = existingCall.length -1;
 
     if (getCalled) {
-      // Only confirm for first caller, other group members added freely
-      if(existingCall.length === 1) {
+      if(existingCall.length === 1) { // Only confirm for first caller, other group members added freely
         let confirmed = window.confirm(
           `User "Socket: ${data.socket}" wants to call you. Do accept this call?`
         );
@@ -388,6 +365,8 @@ function DashChat(props) {
 
           let index = existingCall.indexOf(data.socket);
           existingCall.splice(index, 1);
+
+          connections.pop();
 
           return;
         }
@@ -405,9 +384,6 @@ function DashChat(props) {
     else {
       getCalled = true;
     }
-
-    console.log(existingCall);
-    console.log(existingCall.length, "NUMBER OF CALLERS");
 
     getTracks();
 
@@ -436,8 +412,7 @@ function DashChat(props) {
       );
     }
 
-    // Only allows one call
-    if (!isAlreadyCalling) {
+    if (!isAlreadyCalling) { // Only allows one call
       callUser(data.socket);
       isAlreadyCalling = true;
     }
@@ -454,30 +429,22 @@ function DashChat(props) {
   });
 
   socket.on("add-to-stream", data => {
-    console.log("FOR PEOPLE ALREADY IN STREAM AND NEED TO CONNECT TO NEW MEMBER");
     console.log(data, "ADDED TO STREAM");
 
     isAlreadyCalling = false;
     addingStream = false;
-    // Working up to here (data.new is the socket of the newest person added to the primary call)
-    // Make the other users call the new member (add auto-accept)
-    // Need a break between connection current member to primary and new member to everyone else
+  
     setTimeout(function() {
       callUser(data.new);
-    }, 5000);
-    // callUser(data.new);
+    }, 2000);
   });
 
   socket.on("hang-up", data => {
-    // Filter through existingCall array and remove the person who hung up
     console.log(data.from);
-
     let index = existingCall.indexOf(data.from);
-    // existingCall.splice(index, 1);
 
     connections[index].connection.close();
-    // Remove the video box of user hanging up
-    document.getElementById("remote-video" + (index+1)).classList.add("hide");
+    document.getElementById("remote-video" + (index+1)).classList.add("hide"); // Remove the video box of user hanging up
 
     if(existingCall.length === 1) {
       document.getElementById("video-space").classList.add("hide");
@@ -492,6 +459,8 @@ function DashChat(props) {
 
     let index = existingCall.indexOf(data.socket);
     existingCall.splice(index, 1);
+
+    connections.pop();
 
     unselectUsersFromList();
     // Hide video area and call buttons for the caller
@@ -557,12 +526,6 @@ function DashChat(props) {
     stream.getTracks().forEach(track => connections[connections.length - 1].connection.addTrack(track, stream));
   }
 
-  //===========================================================================
-  //===========================================================================
-  //===========================================================================
-  //===========================================================================
-  //===========================================================================
-  //===========================================================================
   //===========================================================================
   // Messaging Area
   //===========================================================================
@@ -670,6 +633,8 @@ function DashChat(props) {
         to: call
       });  
     });
+
+    existingCall = [];
     
     document.getElementById("video-space").classList.toggle("hide");
     document.getElementById("chat-panel").classList.remove("hide");
