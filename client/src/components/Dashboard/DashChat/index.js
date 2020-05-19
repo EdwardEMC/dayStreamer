@@ -9,6 +9,7 @@ let isAlreadyCalling;
 let getCalled = false;
 let chatName;
 
+
 let existingCall = []; // For multi-user call
 let addingStream; // For adding new group video members
 
@@ -25,7 +26,7 @@ const { RTCPeerConnection, RTCSessionDescription } = window;
 let busyLine = true;
 
 // Array to hold peerConnections
-let connections = [new RTCPeerConnection()];
+let connections = [{id:0, connection:new RTCPeerConnection()}];
 let callers = 0;
 
 function DashChat(props) {
@@ -277,8 +278,9 @@ function DashChat(props) {
     console.log(existingCall, "BEFORE");
     if(!existingCall.includes(socketId)) {
       existingCall.push(socketId);
-      connections.push(new RTCPeerConnection());
+      connections.push({id:1, connection:new RTCPeerConnection()});
       localStream();
+      // callers += 1;
     }
     console.log(existingCall, "AFTER");
 
@@ -287,8 +289,8 @@ function DashChat(props) {
     console.log(callers, "CALLERS");
 
     if(existingCall.length >= 1) {
-      let offer = await connections[callers].createOffer();
-      await connections[callers].setLocalDescription(new RTCSessionDescription(offer));
+      let offer = await connections[callers].connection.createOffer();
+      await connections[callers].connection.setLocalDescription(new RTCSessionDescription(offer));
 
       socket.emit("call-user", {
         offer,
@@ -365,8 +367,9 @@ function DashChat(props) {
   socket.on("call-made", async data => {
     if(!existingCall.includes(data.socket)) {
       existingCall.push(data.socket);
-      connections.push(new RTCPeerConnection());
+      connections.push({id:1, connection:new RTCPeerConnection()});
       localStream();
+      // callers += 1;
     }
 
     callers = existingCall.length -1;
@@ -409,12 +412,12 @@ function DashChat(props) {
     getTracks();
 
     if(existingCall.length >= 1) {
-      await connections[callers].setRemoteDescription(new RTCSessionDescription(data.offer));
-      let answer = await connections[callers].createAnswer();
+      await connections[callers].connection.setRemoteDescription(new RTCSessionDescription(data.offer));
+      let answer = await connections[callers].connection.createAnswer();
 
-      await connections[callers].setLocalDescription(new RTCSessionDescription(answer));
+      await connections[callers].connection.setLocalDescription(new RTCSessionDescription(answer));
 
-      console.log(connections[callers], "Other User");
+      console.log(connections[callers].connection, "Other User");
 
       socket.emit("make-answer", {
         answer,
@@ -425,10 +428,10 @@ function DashChat(props) {
 
   socket.on("answer-made", async data => {
     if(existingCall.length >= 1) {
-      console.log(connections[callers], "PC");
+      console.log(connections[callers].connection, "PC");
       getTracks();
       console.log("here");
-      await connections[callers].setRemoteDescription(
+      await connections[callers].connection.setRemoteDescription(
         new RTCSessionDescription(data.answer)
       );
     }
@@ -462,14 +465,23 @@ function DashChat(props) {
     // callUser(data.new);
   });
 
-  socket.on("hang-up", () => {
+  socket.on("hang-up", data => {
     // Filter through existingCall array and remove the person who hung up
-    connections[callers].close();
+    console.log(data.from);
 
-    document.getElementById("video-space").classList.add("hide");
-    document.getElementById("chat-panel").classList.remove("hide");
+    let index = existingCall.indexOf(data.from);
+    // existingCall.splice(index, 1);
 
-    window.location.reload();
+    connections[index].connection.close();
+    // Remove the video box of user hanging up
+    document.getElementById("remote-video" + (index+1)).classList.add("hide");
+
+    if(existingCall.length === 1) {
+      document.getElementById("video-space").classList.add("hide");
+      document.getElementById("chat-panel").classList.remove("hide");
+
+      window.location.reload();
+    }
   });
 
   socket.on("call-rejected", data => {
@@ -501,9 +513,9 @@ function DashChat(props) {
     // }
   });
 
+  // Functions for receiving streams local and remote
   function getTracks() {
-    console.log(callers, "INSIDE GET TRACKS");
-    connections[callers].ontrack = function({ streams: [stream] }) {
+    connections[callers].connection.ontrack = function({ streams: [stream] }) {
       console.log("PC");
       if(busyLine) {
         const videoContainerEL = createVideoBox();
@@ -539,7 +551,7 @@ function DashChat(props) {
   }
 
   function getStreams(stream) {
-    stream.getTracks().forEach(track => connections[connections.length - 1].addTrack(track, stream));
+    stream.getTracks().forEach(track => connections[connections.length - 1].connection.addTrack(track, stream));
   }
 
   //===========================================================================
@@ -648,7 +660,7 @@ function DashChat(props) {
   };
 
   function hangup() {
-    connections[0].close();
+    connections[0].connection.close();
 
     existingCall.forEach(call => {
       socket.emit("hang-up", {
@@ -658,9 +670,6 @@ function DashChat(props) {
     
     document.getElementById("video-space").classList.toggle("hide");
     document.getElementById("chat-panel").classList.remove("hide");
-
-    // firstLine = true;
-    // secondLine = true;
 
     window.location.reload();
   }
