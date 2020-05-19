@@ -462,7 +462,7 @@ function DashChat(props) {
     // Working up to here (data.new is the socket of the newest person added to the primary call)
     // Make the other users call the new member (add auto-accept)
     // Need a break between connection current member to primary and new member to everyone else
-    // callUser(data.new);
+    callUser(data.new);
   });
 
   socket.on("hang-up", data => {
