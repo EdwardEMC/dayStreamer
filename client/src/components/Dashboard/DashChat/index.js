@@ -605,14 +605,19 @@ function DashChat(props) {
       }
 
       // Need to add streams for each new call
-      stream.getTracks().forEach(track => connections[0].addTrack(track, stream));
-      stream.getTracks().forEach(track => connections[1].addTrack(track, stream));
-      // stream.getTracks().forEach(track => connections[callers].addTrack(track, stream));
+      getStreams(stream);
+      // stream.getTracks().forEach(track => connections[0].addTrack(track, stream));
+      // stream.getTracks().forEach(track => connections[1].addTrack(track, stream));
+      
     },
     error => {
       console.warn(error.message);
     }
   );
+
+  function getStreams(stream) {
+    stream.getTracks().forEach(track => connections[callers].addTrack(track, stream));
+  }
 
   //===========================================================================
   //===========================================================================
