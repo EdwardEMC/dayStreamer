@@ -289,6 +289,7 @@ function DashChat(props) {
     console.log(existingCall, "BEFORE");
     if(!existingCall.includes(socketId)) {
       existingCall.push(socketId);
+      // connections.push(new RTCPeerConnection());
     }
     console.log(existingCall, "AFTER");
 
@@ -386,6 +387,7 @@ function DashChat(props) {
   socket.on("call-made", async data => {
     if(!existingCall.includes(data.socket)) {
       existingCall.push(data.socket);
+      // connections.push(new RTCPeerConnection());
     }
 
     callers = existingCall.length -1;
@@ -425,6 +427,8 @@ function DashChat(props) {
     console.log(existingCall);
     console.log(existingCall.length, "NUMBER OF CALLERS");
 
+    getTracks();
+
     if(existingCall.length >= 1) {
       await connections[callers].setRemoteDescription(new RTCSessionDescription(data.offer));
       let answer = await connections[callers].createAnswer();
@@ -458,6 +462,7 @@ function DashChat(props) {
   socket.on("answer-made", async data => {
     if(existingCall.length >= 1) {
       console.log(connections[callers], "PC");
+      getTracks();
       await connections[callers].setRemoteDescription(
         new RTCSessionDescription(data.answer)
       );
@@ -544,22 +549,24 @@ function DashChat(props) {
     // }
   });
 
-  connections[callers].ontrack = function({ streams: [stream] }) {
-    console.log("PC");
-    if(busyLine) {
-      const videoContainerEL = createVideoBox();
-      document.getElementById("video-boxes").append(videoContainerEL);
-      busyLine = false;
-    }
-    else {
-      busyLine = true;
-    }
+  function getTracks() {
+    connections[callers].ontrack = function({ streams: [stream] }) {
+      console.log("PC");
+      if(busyLine) {
+        const videoContainerEL = createVideoBox();
+        document.getElementById("video-boxes").append(videoContainerEL);
+        busyLine = false;
+      }
+      else {
+        busyLine = true;
+      }
 
-    const remoteVideo = document.getElementById("remote-video" + existingCall.length);
-    if (remoteVideo) {
-      remoteVideo.srcObject = stream;
-    }
-  };
+      const remoteVideo = document.getElementById("remote-video" + existingCall.length);
+      if (remoteVideo) {
+        remoteVideo.srcObject = stream;
+      }
+    };
+  }
 
   // connections[1].ontrack = function({ streams: [stream] }) {
   //   console.log("PC");
@@ -600,7 +607,7 @@ function DashChat(props) {
       // Need to add streams for each new call
       stream.getTracks().forEach(track => connections[0].addTrack(track, stream));
       stream.getTracks().forEach(track => connections[1].addTrack(track, stream));
-      // stream.getTracks().forEach(track => peerConnection1.addTrack(track, stream));
+      // stream.getTracks().forEach(track => connections[callers].addTrack(track, stream));
     },
     error => {
       console.warn(error.message);
