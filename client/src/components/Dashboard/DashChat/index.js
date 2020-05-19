@@ -1,6 +1,7 @@
 import React from "react";
 import API from "../../utils/API";
 import formatTime from "../../utils/formatTime";
+import { useHistory } from "react-router-dom";
 import "./style.css";
 
 //https://github.com/webrtc/samples/blob/gh-pages/src/content/peerconnection/multiple/js/main.js
@@ -22,6 +23,8 @@ let callers = 0;
 
 function DashChat(props) {
   socket = props.socket;
+
+  let history = useHistory();
 
   if(existingCall[0]) { // If already in a call, show video space
     document.getElementById("video-space").classList.remove("hide");
@@ -222,7 +225,6 @@ function DashChat(props) {
     return userContainerEl;
   }
 
-  // function to display results in message area
   function displayMessages(data) {
     // change to display past x messsages and then add a button to view more
     const area = document.getElementById('messages');
@@ -255,9 +257,6 @@ function DashChat(props) {
   // Calling Area
   //===========================================================================
   async function callUser(socketId) {
-    // After creating dynamic variable set it to = new RTCPeerConnection();
-    // Can create a new peer connection at a increase dynamic variable each time someone is called concurrently
-    // Emit an addToStream socket on call accept to other users in current call
     console.log(existingCall, "BEFORE");
     if(!existingCall.includes(socketId)) {
       existingCall.push(socketId);
@@ -344,9 +343,11 @@ function DashChat(props) {
   });
 
   socket.on("call-made", async data => {
+    history.push("/chat");
+
     if(!existingCall.includes(data.socket)) {
       existingCall.push(data.socket);
-      connections.push({id:1, connection:new RTCPeerConnection()});
+      connections.push({id:existingCall.length, connection:new RTCPeerConnection()});
       localStream();
     }
 
