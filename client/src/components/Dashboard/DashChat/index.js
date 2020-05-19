@@ -1,7 +1,7 @@
 import React from "react";
 import API from "../../utils/API";
 import formatTime from "../../utils/formatTime";
-import { useHistory } from "react-router-dom";
+// import { useHistory } from "react-router-dom";
 import "./style.css";
 
 //https://github.com/webrtc/samples/blob/gh-pages/src/content/peerconnection/multiple/js/main.js
@@ -24,7 +24,7 @@ let callers = 0;
 function DashChat(props) {
   socket = props.socket;
 
-  let history = useHistory();
+  // let history = useHistory();
 
   if(existingCall[0]) { // If already in a call, show video space
     document.getElementById("video-space").classList.remove("hide");
@@ -281,15 +281,16 @@ function DashChat(props) {
     const activeUserContainer = document.getElementById("active-user-container");
 
     socketIds.forEach(data => {
-      const alreadyExistingUser = document.getElementById(data.name);
-      if (alreadyExistingUser) {
+      const alreadyExistingFriend = document.getElementById(data.name);
+      const alreadyExistingUser = document.getElementById(data.socket);
+      if (alreadyExistingFriend) {
         onlineFriends.push({name: data.name, socket: data.socket});
         document.getElementById(data.name).setAttribute("value", data.socket);
         document.getElementById(data.name).classList.add(data.socket);
         document.getElementById(data.name + "offline").classList.add("hide");
         document.getElementById(data.name + "online").classList.remove("hide");
       }
-      else if(data.name !== user.name){
+      else if(data.name !== user.name && !alreadyExistingUser){
         const userContainerEl = createUserItemContainer(data);
         activeUserContainer.append(userContainerEl);
       }
@@ -344,12 +345,15 @@ function DashChat(props) {
 
   socket.on("call-made", async data => {
     // push only if no on page
-    let sitePage = window.location.href;
-    console.log(sitePage);
-    if(!sitePage.includes("/chat")) {
-      console.log("push chat page");
-      history.push("/chat");
-    }
+    // let sitePage = window.location.href;
+    // console.log(sitePage);
+
+    // // Error on connection if accepted on different page
+    // // Still works regardless of error above
+    // if(!sitePage.includes("/chat")) {
+    //   console.log("push chat page");
+    //   history.push("/chat");
+    // }
 
     if(!existingCall.includes(data.socket)) {
       existingCall.push(data.socket);
