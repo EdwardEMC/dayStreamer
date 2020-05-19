@@ -468,7 +468,7 @@ function DashChat(props) {
       await connections[callers].setRemoteDescription(
         new RTCSessionDescription(data.answer)
       );
-      // localStream();
+      localStream();
     }
 
     // If first line busy
@@ -483,7 +483,6 @@ function DashChat(props) {
     if (!isAlreadyCalling) {
       callUser(data.socket);
       // callers += 1;
-      localStream();
       isAlreadyCalling = true;
     }
 
