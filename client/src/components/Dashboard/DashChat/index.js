@@ -376,7 +376,7 @@ function DashChat(props) {
 
     if (getCalled) {
       // Only confirm for first caller, other group members added freely
-      // if(existingCall.length === 1) {
+      if(existingCall.length === 1) {
         let confirmed = window.confirm(
           `User "Socket: ${data.socket}" wants to call you. Do accept this call?`
         );
@@ -391,7 +391,7 @@ function DashChat(props) {
 
           return;
         }
-      // }
+      }
 
       // let userCalling = document.getElementsByClassName(data.socket)
       // let elToFocus = userCalling[0].getAttribute("id");
