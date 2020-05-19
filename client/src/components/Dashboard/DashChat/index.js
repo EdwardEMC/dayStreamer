@@ -420,7 +420,6 @@ function DashChat(props) {
       // unselectUsersFromList();
       // document.getElementById(elToFocus).click();
       getCalled = false;
-      localStream();
     }
     else {
       getCalled = true;
@@ -465,10 +464,10 @@ function DashChat(props) {
     if(existingCall.length >= 1) {
       console.log(connections[callers], "PC");
       getTracks();
+      console.log("here");
       await connections[callers].setRemoteDescription(
         new RTCSessionDescription(data.answer)
       );
-      localStream();
     }
 
     // If first line busy
@@ -553,6 +552,7 @@ function DashChat(props) {
   });
 
   function getTracks() {
+    console.log(callers, "INSDIE GET TRACKS");
     connections[callers].ontrack = function({ streams: [stream] }) {
       console.log("PC");
       if(busyLine) {
@@ -622,7 +622,9 @@ function DashChat(props) {
 
   function getStreams(stream) {
     console.log("getting streams");
-    stream.getTracks().forEach(track => connections[callers].addTrack(track, stream));
+    connections.forEach(connection => {
+      stream.getTracks().forEach(track => connection.addTrack(track, stream));
+    });
   }
 
   //===========================================================================
