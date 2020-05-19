@@ -343,7 +343,13 @@ function DashChat(props) {
   });
 
   socket.on("call-made", async data => {
-    history.push("/chat");
+    // push only if no on page
+    let sitePage = window.location.href;
+    console.log(sitePage);
+    if(!sitePage.includes("/chat")) {
+      console.log("push chat page");
+      history.push("/chat");
+    }
 
     if(!existingCall.includes(data.socket)) {
       existingCall.push(data.socket);
