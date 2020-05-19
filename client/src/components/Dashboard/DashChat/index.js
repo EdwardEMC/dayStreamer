@@ -39,7 +39,7 @@ let busyLine = true;
 
 let callers = 0;
 // Array to hold peerConnections
-let connections = [new RTCPeerConnection(), new RTCPeerConnection()];
+let connections = [new RTCPeerConnection()];
 
 function DashChat(props) {
   socket = props.socket;
@@ -290,7 +290,8 @@ function DashChat(props) {
     console.log(existingCall, "BEFORE");
     if(!existingCall.includes(socketId)) {
       existingCall.push(socketId);
-      // connections.push(new RTCPeerConnection());
+      connections.push(new RTCPeerConnection());
+      localStream();
     }
     console.log(existingCall, "AFTER");
 
@@ -388,7 +389,8 @@ function DashChat(props) {
   socket.on("call-made", async data => {
     if(!existingCall.includes(data.socket)) {
       existingCall.push(data.socket);
-      // connections.push(new RTCPeerConnection());
+      connections.push(new RTCPeerConnection());
+      localStream();
     }
 
     callers = existingCall.length -1;
@@ -552,7 +554,7 @@ function DashChat(props) {
   });
 
   function getTracks() {
-    console.log(callers, "INSDIE GET TRACKS");
+    console.log(callers, "INSIDE GET TRACKS");
     connections[callers].ontrack = function({ streams: [stream] }) {
       console.log("PC");
       if(busyLine) {
@@ -622,9 +624,9 @@ function DashChat(props) {
 
   function getStreams(stream) {
     console.log("getting streams");
-    connections.forEach(connection => {
-      stream.getTracks().forEach(track => connection.addTrack(track, stream));
-    });
+    // connections.forEach(connection => {
+      stream.getTracks().forEach(track => connections[connections.length - 1].addTrack(track, stream));
+    // });
   }
 
   //===========================================================================
