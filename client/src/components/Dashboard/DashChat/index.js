@@ -23,23 +23,10 @@ const { RTCPeerConnection, RTCSessionDescription } = window;
 
 // Limit to only one video box creation (chrome bug triggering twice)
 let busyLine = true;
-// let secondLine = true;
 
-// Need to create a new peerConnection each time a person joins
-// let peerConnection = new RTCPeerConnection();
-// let peerConnection1 = new RTCPeerConnection();
-// let peerConnection2 = new RTCPeerConnection();
-// let peerConnection3 = new RTCPeerConnection();
-// let peerConnection4 = new RTCPeerConnection();
-// let peerConnection5 = new RTCPeerConnection();
-// let peerConnection6 = new RTCPeerConnection();
-// let peerConnection7 = new RTCPeerConnection();
-// let peerConnection8 = new RTCPeerConnection();
-// let peerConnection9 = new RTCPeerConnection();
-
-let callers = 0;
 // Array to hold peerConnections
 let connections = [new RTCPeerConnection()];
+let callers = 0;
 
 function DashChat(props) {
   socket = props.socket;
@@ -308,17 +295,6 @@ function DashChat(props) {
         to: socketId
       });
     }
-
-    // If first line is busy
-    // if(existingCall.length === 2) {
-    //   let offer = await peerConnection1.createOffer();
-    //   await peerConnection1.setLocalDescription(new RTCSessionDescription(offer));
-      
-    //   socket.emit("call-user", {
-    //     offer,
-    //     to: socketId
-    //   });
-    // }
   }
 
   function updateUserList(socketIds) {
@@ -445,21 +421,6 @@ function DashChat(props) {
         to: data.socket
       });
     }
-
-    // If first line busy
-    // if(existingCall.length === 2) {
-    //   await peerConnection1.setRemoteDescription(new RTCSessionDescription(data.offer));
-    //   let answer = await peerConnection1.createAnswer();
-
-    //   await peerConnection1.setLocalDescription(new RTCSessionDescription(answer));
-
-    //   console.log(peerConnection1, "Other User");
-      
-    //   socket.emit("make-answer", {
-    //     answer,
-    //     to: data.socket
-    //   });
-    // }
   });
 
   socket.on("answer-made", async data => {
@@ -472,18 +433,9 @@ function DashChat(props) {
       );
     }
 
-    // If first line busy
-    // if(existingCall.length === 2) {
-    //   console.log(peerConnection1, "PC1");
-    //   await peerConnection1.setRemoteDescription(
-    //     new RTCSessionDescription(data.answer)
-    //   );
-    // }
-
     // Only allows one call
     if (!isAlreadyCalling) {
       callUser(data.socket);
-      // callers += 1;
       isAlreadyCalling = true;
     }
 
@@ -512,14 +464,10 @@ function DashChat(props) {
 
   socket.on("hang-up", () => {
     // Filter through existingCall array and remove the person who hung up
-    // console.log("here");
     connections[callers].close();
 
     document.getElementById("video-space").classList.add("hide");
     document.getElementById("chat-panel").classList.remove("hide");
-
-    // firstLine = true;
-    // secondLine = true;
 
     window.location.reload();
   });
@@ -573,34 +521,6 @@ function DashChat(props) {
     };
   }
 
-  // connections[1].ontrack = function({ streams: [stream] }) {
-  //   console.log("PC");
-  //   if(secondLine) {
-  //     const videoContainerEL = createVideoBox();
-  //     document.getElementById("video-boxes").append(videoContainerEL);
-  //   }
-  //   secondLine = false;
-
-  //   const remoteVideo = document.getElementById("remote-video2");
-  //   if (remoteVideo) {
-  //     remoteVideo.srcObject = stream;
-  //   }
-  // };
-
-  // peerConnection1.ontrack = function({ streams: [stream] }) {
-  //   console.log("PC1");
-  //   if(secondLine) {
-  //     const videoContainerEL = createVideoBox();
-  //     document.getElementById("video-boxes").append(videoContainerEL);
-  //   }
-  //   secondLine = false;
-
-  //   const remoteVideo = document.getElementById("remote-video2");
-  //   if (remoteVideo) {
-  //     remoteVideo.srcObject = stream;
-  //   }
-  // };
-
   function localStream() {
     navigator.getUserMedia(
       { video: true, audio: true },
@@ -610,11 +530,7 @@ function DashChat(props) {
           localVideo.srcObject = stream;
         }
 
-        // Need to add streams for each new call
-        getStreams(stream);
-        // stream.getTracks().forEach(track => connections[0].addTrack(track, stream));
-        // stream.getTracks().forEach(track => connections[1].addTrack(track, stream));
-        
+        getStreams(stream);  
       },
       error => {
         console.warn(error.message);
@@ -623,10 +539,7 @@ function DashChat(props) {
   }
 
   function getStreams(stream) {
-    console.log("getting streams");
-    // connections.forEach(connection => {
-      stream.getTracks().forEach(track => connections[connections.length - 1].addTrack(track, stream));
-    // });
+    stream.getTracks().forEach(track => connections[connections.length - 1].addTrack(track, stream));
   }
 
   //===========================================================================
