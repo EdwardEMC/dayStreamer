@@ -57,6 +57,7 @@ function DashChat(props) {
   // user.id for logged in id; user.name for logged in username
   const user = JSON.parse(localStorage.getItem("User"));
 
+  localStream();
   //===========================================================================
   // Friends Areas
   //===========================================================================
@@ -419,6 +420,7 @@ function DashChat(props) {
       // unselectUsersFromList();
       // document.getElementById(elToFocus).click();
       getCalled = false;
+      localStream();
     }
     else {
       getCalled = true;
@@ -466,6 +468,7 @@ function DashChat(props) {
       await connections[callers].setRemoteDescription(
         new RTCSessionDescription(data.answer)
       );
+      // localStream();
     }
 
     // If first line busy
@@ -480,6 +483,7 @@ function DashChat(props) {
     if (!isAlreadyCalling) {
       callUser(data.socket);
       // callers += 1;
+      localStream();
       isAlreadyCalling = true;
     }
 
@@ -596,26 +600,29 @@ function DashChat(props) {
   //   }
   // };
 
-  navigator.getUserMedia(
-    { video: true, audio: true },
-    stream => {
-      const localVideo = document.getElementById("local-video");
-      if (localVideo) {
-        localVideo.srcObject = stream;
-      }
+  function localStream() {
+    navigator.getUserMedia(
+      { video: true, audio: true },
+      stream => {
+        const localVideo = document.getElementById("local-video");
+        if (localVideo) {
+          localVideo.srcObject = stream;
+        }
 
-      // Need to add streams for each new call
-      getStreams(stream);
-      // stream.getTracks().forEach(track => connections[0].addTrack(track, stream));
-      // stream.getTracks().forEach(track => connections[1].addTrack(track, stream));
-      
-    },
-    error => {
-      console.warn(error.message);
-    }
-  );
+        // Need to add streams for each new call
+        getStreams(stream);
+        // stream.getTracks().forEach(track => connections[0].addTrack(track, stream));
+        // stream.getTracks().forEach(track => connections[1].addTrack(track, stream));
+        
+      },
+      error => {
+        console.warn(error.message);
+      }
+    );
+  }
 
   function getStreams(stream) {
+    console.log("getting streams");
     stream.getTracks().forEach(track => connections[callers].addTrack(track, stream));
   }
 
