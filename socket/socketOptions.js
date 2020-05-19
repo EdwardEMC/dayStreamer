@@ -89,11 +89,14 @@ module.exports = function(io) {
     });
 
     socket.on("new-to-stream", data => {
+      let count = 1000;
       data.to.forEach(call => {
         console.log(call, "CALL");
         socket.to(call).emit("add-to-stream", {
-          new: data.newStream
+          new: data.newStream,
+          time: count
         });
+        count += 1000;
       });
     });
   });

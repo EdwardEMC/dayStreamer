@@ -257,7 +257,6 @@ function DashChat(props) {
   // Calling Area
   //===========================================================================
   async function callUser(socketId) {
-    console.log(existingCall, "BEFORE");
     if(!existingCall.includes(socketId)) {
       existingCall.push(socketId);
       connections.push({id:1, connection:new RTCPeerConnection()});
@@ -417,7 +416,6 @@ function DashChat(props) {
     if(existingCall.length >= 1) {
       console.log(connections[callers].connection, "PC");
       getTracks();
-      console.log("here");
       await connections[callers].connection.setRemoteDescription(
         new RTCSessionDescription(data.answer)
       );
@@ -429,6 +427,7 @@ function DashChat(props) {
     }
 
     if(addingStream) {
+      console.log("here");
       let others = existingCall.filter(element => element !== data.socket);
       socket.emit("new-to-stream", {
         to: others,
@@ -445,9 +444,10 @@ function DashChat(props) {
     isAlreadyCalling = false;
     addingStream = false;
   
+    // Error trying to add 4th person, calls that person at the same time from user2 and user3....
     setTimeout(function() {
       callUser(data.new);
-    }, 2000);
+    }, data.time);
   });
 
   socket.on("hang-up", data => {
