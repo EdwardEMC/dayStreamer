@@ -21,6 +21,8 @@ let addingStream; // For adding new group video members
 
 let onCall = false; // If anyone tries to call while user is already in call
 
+let add = false;
+
 //let messageNotifications; // Keeping track of notifications
 let onlineFriends = []; // Array to hold currently online friends
 
@@ -115,9 +117,9 @@ function DashChat(props) {
         callUser(document.getElementById(name).getAttribute("value"));
         // Show video area and call buttons for the caller
         document.getElementById("video-space").classList.remove("hide");
-        // if(existingCall.length >= 1) {
-        //   addingStream = true;
-        // }
+        if(existingCall.length >= 1) {
+          addingStream = true;
+        }
       });
 
       userContainerEl.append(usernameEl, callButtonEl, offlineEl);
@@ -200,9 +202,9 @@ function DashChat(props) {
       callUser(data.socket);
       // Show video area and call buttons for the caller
       document.getElementById("video-space").classList.remove("hide");
-      // if(existingCall.length >= 1) {
-      //   addingStream = true;
-      // }
+      if(existingCall.length >= 1) {
+        addingStream = true;
+      }
     });
 
     addFriendEl.addEventListener("click", () => {
@@ -373,13 +375,20 @@ function DashChat(props) {
     console.log(data.added, "ADDED");
 
     // If user is on call and user calling is not adding to stream reject incoming
-    // if(onCall && !data.added) {
-    //   socket.emit("reject-call", {
-    //     from: data.socket
-    //   });
-    //   console.log("inside call reject addon stream");
-    //   return;
-    // }
+    if(onCall && !data.added && !add) {
+      socket.emit("reject-call", {
+        from: data.socket
+      });
+      console.log("inside call reject addon stream");
+      return;
+    }
+
+    if(data.added) {
+      add = true;
+    }
+    else {
+      add = false;
+    }
 
     if(!existingCall.includes(data.socket)) {
       existingCall.push(data.socket);
@@ -454,7 +463,7 @@ function DashChat(props) {
       isAlreadyCalling = true;
     }
 
-    // As chrome runs it twice, dont emit first time only second
+    // As chrome runs it twice, dont emit second time only first
     if(addingStream) { // Sends an emit if there is more than one other user on call
       console.log("here");
       let others = existingCall.filter(element => element !== data.socket);
@@ -465,10 +474,6 @@ function DashChat(props) {
       });
 
       addingStream = false;
-    }
-
-    if(existingCall.length >= 2) {
-      addingStream = true;
     }
   });
 
