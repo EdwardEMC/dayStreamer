@@ -95,9 +95,9 @@ module.exports = function(io) {
     });
 
     socket.on("new-to-stream", data => {
+      // Adds a new user every second, so answer/offers do not get mixed up on group calls
       let count = 1000;
       data.to.forEach(call => {
-        console.log(call, "CALL");
         socket.to(call).emit("add-to-stream", {
           new: data.newStream,
           added: data.added,

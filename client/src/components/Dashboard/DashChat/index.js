@@ -33,6 +33,7 @@ let connections = [{id:0, connection:new RTCPeerConnection()}]; // Array to hold
 let callers = 0;
 
 function DashChat(props) {
+  // Passed down from APP.js so users online as soon as they log in
   socket = props.socket;
 
   // let history = useHistory();
@@ -58,7 +59,7 @@ function DashChat(props) {
     .then(function(result) {
       createFriendItemContainer(result.data.chats);
       // Updates the user list each time user visits the messenger, incase of missed update-user-list emit
-      console.log(props.online);
+      // console.log(props.online);
       updateUserList(props.online);
     }) // If there's an error, log the error
     .catch(function(err) {
@@ -114,9 +115,9 @@ function DashChat(props) {
         callUser(document.getElementById(name).getAttribute("value"));
         // Show video area and call buttons for the caller
         document.getElementById("video-space").classList.remove("hide");
-        if(existingCall.length >= 1) {
-          addingStream = true;
-        }
+        // if(existingCall.length >= 1) {
+        //   addingStream = true;
+        // }
       });
 
       userContainerEl.append(usernameEl, callButtonEl, offlineEl);
@@ -199,9 +200,9 @@ function DashChat(props) {
       callUser(data.socket);
       // Show video area and call buttons for the caller
       document.getElementById("video-space").classList.remove("hide");
-      if(existingCall.length >= 1) {
-        addingStream = true;
-      }
+      // if(existingCall.length >= 1) {
+      //   addingStream = true;
+      // }
     });
 
     addFriendEl.addEventListener("click", () => {
@@ -420,6 +421,8 @@ function DashChat(props) {
 
     getTracks();
 
+    onCall = true;
+
     if(existingCall.length >= 1) {
       await connections[callers].connection.setRemoteDescription(new RTCSessionDescription(data.offer));
       let answer = await connections[callers].connection.createAnswer();
@@ -449,6 +452,7 @@ function DashChat(props) {
       isAlreadyCalling = true;
     }
 
+    // As chrome runs it twice, dont emit first time only second
     if(addingStream) { // Sends an emit if there is more than one other user on call
       console.log("here");
       let others = existingCall.filter(element => element !== data.socket);
@@ -459,6 +463,10 @@ function DashChat(props) {
       });
 
       addingStream = false;
+    }
+
+    if(existingCall.length >= 1) {
+      addingStream = true;
     }
   });
 
