@@ -40,7 +40,7 @@ module.exports = function(io) {
       socket.to(data.to).emit("call-made", {
         offer: data.offer,
         socket: socket.id,
-        added: data.added
+        added: streamAdd
       });
     });
   
