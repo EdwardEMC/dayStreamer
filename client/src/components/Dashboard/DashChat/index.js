@@ -436,6 +436,10 @@ function DashChat(props) {
         to: data.socket
       });
     }
+
+    if(existingCall.length >= 2) {
+      addingStream = true;
+    }
   });
 
   socket.on("answer-made", async data => {
@@ -463,10 +467,6 @@ function DashChat(props) {
       });
 
       addingStream = false;
-    }
-
-    if(existingCall.length >= 1) {
-      addingStream = true;
     }
   });
 
