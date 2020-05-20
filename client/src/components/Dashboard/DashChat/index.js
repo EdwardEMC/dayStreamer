@@ -377,7 +377,8 @@ function DashChat(props) {
     // If user is on call and user calling is not adding to stream reject incoming
     if(onCall && !data.added && !add) {
       socket.emit("reject-call", {
-        from: data.socket
+        from: data.socket,
+        inCall: true
       });
       console.log("inside call reject addon stream");
       return;
@@ -459,7 +460,6 @@ function DashChat(props) {
     }
 
     // As chrome runs it twice, dont emit second time only first
-    console.log(isAlreadyCalling, "stream add check");
     if(addingStream && isAlreadyCalling) { // Sends an emit if there is more than one other user on call
       console.log("here");
       let others = existingCall.filter(element => element !== data.socket);
@@ -508,7 +508,12 @@ function DashChat(props) {
   });
 
   socket.on("call-rejected", data => {
-    alert(`User: "Socket: ${data.socket}" rejected your call.`);
+    if(data.inCall) {
+      alert(`User: "Socket: ${data.socket}" is current on a call.`);
+    }
+    else {
+      alert(`User: "Socket: ${data.socket}" rejected your call.`); 
+    }
 
     let index = existingCall.indexOf(data.socket);
     existingCall.splice(index, 1);

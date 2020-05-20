@@ -53,7 +53,8 @@ module.exports = function(io) {
   
     socket.on("reject-call", data => {
       socket.to(data.from).emit("call-rejected", {
-        socket: socket.id
+        socket: socket.id,
+        inCall: data.inCall
       });
     });
   
