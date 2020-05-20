@@ -368,6 +368,9 @@ function DashChat(props) {
     //   console.log("push chat page");
     //   history.push("/chat");
     // }
+    
+    console.log(onCall, "ONCALL");
+    console.log(data.added, "ADDED");
 
     // If user is on call and user calling is not adding to stream reject incoming
     if(onCall && !data.added) {
@@ -417,11 +420,10 @@ function DashChat(props) {
     }
     else {
       getCalled = true;
+      onCall = true;
     }
 
     getTracks();
-
-    onCall = true;
 
     if(existingCall.length >= 1) {
       await connections[callers].connection.setRemoteDescription(new RTCSessionDescription(data.offer));
@@ -435,10 +437,6 @@ function DashChat(props) {
         answer,
         to: data.socket
       });
-    }
-
-    if(existingCall.length >= 2) {
-      addingStream = true;
     }
   });
 
@@ -467,6 +465,10 @@ function DashChat(props) {
       });
 
       addingStream = false;
+    }
+
+    if(existingCall.length >= 2) {
+      addingStream = true;
     }
   });
 
