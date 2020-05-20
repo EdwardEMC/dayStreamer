@@ -426,6 +426,7 @@ function DashChat(props) {
 
       // unselectUsersFromList();
       // document.getElementById(elToFocus).click();
+      once = false;
       getCalled = false;
       onCall = true;
     }
