@@ -458,11 +458,6 @@ function DashChat(props) {
       );
     }
 
-    if (!isAlreadyCalling) { // Only allows one call (chrome bug?)
-      callUser(data.socket);
-      isAlreadyCalling = true;
-    }
-
     // As chrome runs it twice, dont emit second time only first
     console.log(isAlreadyCalling, "stream add check");
     if(addingStream && isAlreadyCalling) { // Sends an emit if there is more than one other user on call
@@ -475,6 +470,11 @@ function DashChat(props) {
       });
 
       addingStream = false;
+    }
+
+    if (!isAlreadyCalling) { // Only allows one call (chrome bug?)
+      callUser(data.socket);
+      isAlreadyCalling = true;
     }
   });
 
