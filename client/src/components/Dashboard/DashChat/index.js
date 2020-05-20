@@ -464,7 +464,7 @@ function DashChat(props) {
     }
 
     // As chrome runs it twice, dont emit second time only first
-    if(addingStream) { // Sends an emit if there is more than one other user on call
+    if(addingStream && isAlreadyCalling) { // Sends an emit if there is more than one other user on call
       console.log("here");
       let others = existingCall.filter(element => element !== data.socket);
       socket.emit("new-to-stream", {
