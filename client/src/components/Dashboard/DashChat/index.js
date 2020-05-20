@@ -10,15 +10,26 @@ const iconPath = process.env.PUBLIC_URL + '/assets/ChatIcons/';
 const { RTCPeerConnection, RTCSessionDescription } = window;
 
 let isAlreadyCalling;
+
 let getCalled = false;
+
 let chatName;
+
 let existingCall = []; // For multi-user call
+
 let addingStream; // For adding new group video members
-// let messageNotifications; // Keeping track of notifications
+
+let onCall = false; // If anyone tries to call while user is already in call
+
+//let messageNotifications; // Keeping track of notifications
 let onlineFriends = []; // Array to hold currently online friends
+
 let socket;
+
 let busyLine = true; // Limit to only one video box creation
+
 let connections = [{id:0, connection:new RTCPeerConnection()}]; // Array to hold peerConnections
+
 let callers = 0;
 
 function DashChat(props) {
@@ -256,7 +267,7 @@ function DashChat(props) {
   //===========================================================================
   // Calling Area
   //===========================================================================
-  async function callUser(socketId) {
+  async function callUser(socketId, added) {
     if(!existingCall.includes(socketId)) {
       existingCall.push(socketId);
       connections.push({id:1, connection:new RTCPeerConnection()});
@@ -271,8 +282,11 @@ function DashChat(props) {
 
       socket.emit("call-user", {
         offer,
-        to: socketId
+        to: socketId,
+        added: added
       });
+
+      onCall = true;
     }
   }
 
@@ -354,6 +368,15 @@ function DashChat(props) {
     //   history.push("/chat");
     // }
 
+    // If user is on call and user calling is not adding to stream reject incoming
+    if(onCall && !data.added) {
+      socket.emit("reject-call", {
+        from: data.socket
+      });
+
+      return;
+    }
+
     if(!existingCall.includes(data.socket)) {
       existingCall.push(data.socket);
       connections.push({id:existingCall.length, connection:new RTCPeerConnection()});
@@ -421,17 +444,18 @@ function DashChat(props) {
       );
     }
 
-    if (!isAlreadyCalling) { // Only allows one call
+    if (!isAlreadyCalling) { // Only allows one call (chrome bug?)
       callUser(data.socket);
       isAlreadyCalling = true;
     }
 
-    if(addingStream) {
+    if(addingStream) { // Sends an emit if there is more than one other user on call
       console.log("here");
       let others = existingCall.filter(element => element !== data.socket);
       socket.emit("new-to-stream", {
         to: others,
-        newStream: data.socket
+        newStream: data.socket,
+        added: true
       });
 
       addingStream = false;
@@ -443,10 +467,10 @@ function DashChat(props) {
 
     isAlreadyCalling = false;
     addingStream = false;
-  
-    // Error trying to add 4th person, calls that person at the same time from user2 and user3....
+    
+    // Need to delay for the first person to accept. Then call with other users
     setTimeout(function() {
-      callUser(data.new);
+      callUser(data.new, data.added);
     }, data.time);
   });
 
@@ -456,6 +480,8 @@ function DashChat(props) {
 
     connections[index].connection.close();
     document.getElementById("remote-video" + (index+1)).classList.add("hide"); // Remove the video box of user hanging up
+
+    onCall = false;
 
     if(existingCall.length === 1) {
       document.getElementById("video-space").classList.add("hide");
@@ -473,28 +499,40 @@ function DashChat(props) {
 
     connections.pop();
 
+    onCall = false;
+
     unselectUsersFromList();
     // Hide video area and call buttons for the caller
     document.getElementById("video-space").classList.add("hide");
   });
 
-  // Socket for message notification
-  socket.on("message-notification", data => {
-    // If on chats detect which conversation to update
-    // Add area on chat boxes for notifications
-    // if(window.location.pathname === "/chats") {
-    //   let name = document.getElementById(data.from);
-    //   messageNotifications + 1, "message received";
-    //   name.inn
-    // }
+  // // Socket for message notification
+  // socket.on("message-notification", data => {
+  //   // If on chats detect which conversation to update
+  //   // Add area on chat boxes for notifications
+  //   console.log(window.location.pathname);
+  //   if(window.location.pathname === "/chats") {
+  //     let name = document.getElementById(data.fromName);
+  //     let socket = document.getElementById(data.socket);
+  //     if(name) {
+  //       messageNotifications += 1 
+  //       console.log("message received NAME");
+  //       // name.innerHTML = messageNotifications
+  //     }
+  //     else if(socket) {
+  //       messageNotifications += 1
+  //       console.log("message received SOCKET");
+  //       // socket.innerHTML = messageNotifications
+  //     }
+  //   }
 
-    // else if detect the use is on the chats page
-    // if(window.location.pathname !== "/chats") {
-    //   let notify = document.getElementById("notification");
-    //   notify.innerHTML = "!";
-    //   notify.classList.remove("hide");
-    // }
-  });
+  //   // else if detect the use is on the chats page
+  //   if(window.location.pathname !== "/chats") {
+  //     let notify = document.getElementById("notification");
+  //     notify.innerHTML = "!";
+  //     notify.classList.remove("hide");
+  //   }
+  // });
 
   // Functions for receiving streams local and remote
   function getTracks() {
@@ -646,6 +684,8 @@ function DashChat(props) {
     });
 
     existingCall = [];
+
+    onCall = false;
     
     document.getElementById("video-space").classList.toggle("hide");
     document.getElementById("chat-panel").classList.remove("hide");

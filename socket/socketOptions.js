@@ -32,10 +32,15 @@ module.exports = function(io) {
       });
     };
   
-    socket.on("call-user", (data) => {
+    socket.on("call-user", data => {
+      let streamAdd = false;
+      if(data.added) {
+        streamAdd = true;
+      }
       socket.to(data.to).emit("call-made", {
         offer: data.offer,
-        socket: socket.id
+        socket: socket.id,
+        added: data.added
       });
     });
   
@@ -78,14 +83,15 @@ module.exports = function(io) {
     });
   
     socket.on("chat-message", data => {
-      console.log(data, "HERE");
       socket.to(data.to).emit("chat-sent", {
         msg: data,
         socket: socket.id
       });
-      socket.to(data.to).emit("message-notification", {
-        from: data.fromName
-      });
+      // console.log(data, "HERE");
+      // socket.to(data.to).emit("message-notification", {
+      //   fromName: data.fromName,
+      //   socket: data.socket
+      // });
     });
 
     socket.on("new-to-stream", data => {
@@ -94,6 +100,7 @@ module.exports = function(io) {
         console.log(call, "CALL");
         socket.to(call).emit("add-to-stream", {
           new: data.newStream,
+          added: data.added,
           time: count
         });
         count += 1000;
