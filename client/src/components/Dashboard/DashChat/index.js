@@ -377,7 +377,7 @@ function DashChat(props) {
       socket.emit("reject-call", {
         from: data.socket
       });
-
+      console.log("inside call reject addon stream");
       return;
     }
 
@@ -417,10 +417,10 @@ function DashChat(props) {
       // unselectUsersFromList();
       // document.getElementById(elToFocus).click();
       getCalled = false;
+      onCall = true;
     }
     else {
       getCalled = true;
-      onCall = true;
     }
 
     getTracks();
