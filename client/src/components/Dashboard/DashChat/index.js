@@ -21,6 +21,8 @@ let addingStream; // For adding new group video members
 
 let onCall = false; // If anyone tries to call while user is already in call
 
+let once = false; // Making sure stream added for new user is only checked once
+
 //let messageNotifications; // Keeping track of notifications
 let onlineFriends = []; // Array to hold currently online friends
 
@@ -372,14 +374,20 @@ function DashChat(props) {
     console.log(onCall, "ONCALL");
     console.log(data.added, "ADDED");
 
-    // If user is on call and user calling is not adding to stream reject incoming
+    // If user is on call and user calling is not adding to stream reject incoming   
     if(onCall && !data.added) {
-      socket.emit("reject-call", {
-        from: data.socket
-      });
-      console.log("inside call reject addon stream");
-      return;
+      if(once) {
+        socket.emit("reject-call", {
+          from: data.socket
+        });
+        console.log("inside call reject addon stream");
+        return;
+      }
+      else {
+        once = true;
+      }
     }
+    
 
     if(!existingCall.includes(data.socket)) {
       existingCall.push(data.socket);
@@ -404,6 +412,8 @@ function DashChat(props) {
           existingCall.splice(index, 1);
 
           connections.pop();
+
+          once = false;
 
           return;
         }
@@ -491,9 +501,11 @@ function DashChat(props) {
     connections[index].connection.close();
     document.getElementById("remote-video" + (index+1)).classList.add("hide"); // Remove the video box of user hanging up
 
-    onCall = false;
-
+    // If only one person on call, end on hang up
     if(existingCall.length === 1) {
+      onCall = false;
+      once = false;
+
       document.getElementById("video-space").classList.add("hide");
       document.getElementById("chat-panel").classList.remove("hide");
 
@@ -696,6 +708,7 @@ function DashChat(props) {
     existingCall = [];
 
     onCall = false;
+    once = false;
     
     document.getElementById("video-space").classList.toggle("hide");
     document.getElementById("chat-panel").classList.remove("hide");
