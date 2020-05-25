@@ -40,6 +40,7 @@ module.exports = function(io) {
       socket.to(data.to).emit("call-made", {
         offer: data.offer,
         socket: socket.id,
+        from: data.from,
         added: streamAdd
       });
     });
@@ -53,7 +54,8 @@ module.exports = function(io) {
   
     socket.on("reject-call", data => {
       socket.to(data.from).emit("call-rejected", {
-        socket: socket.id,
+        socket: data.from.socket,
+        from: data.from.name,
         inCall: data.inCall
       });
     });

@@ -43,7 +43,7 @@ const NavRoutes = () => {
         <Route path="/profile" component={Profile} />
         <Route 
           exact path="/chat"
-          render = {(props) => <Chat {...props} socket={socket} online={onlineUsers}/>}
+          render = {props => <Chat {...props} socket={socket} online={onlineUsers}/>}
         />
         <Route exact path="/plans" component={Plans} />
         <Route exact path="/settings" component={Settings} />

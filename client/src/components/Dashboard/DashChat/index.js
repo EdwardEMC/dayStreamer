@@ -286,6 +286,7 @@ function DashChat(props) {
       socket.emit("call-user", {
         offer,
         to: socketId,
+        from: user.name,
         added: added
       });
 
@@ -320,16 +321,19 @@ function DashChat(props) {
   socket.removeListener("chat-message");
   socket.removeListener("chat-sent");
 
+  // New user logging on update
   socket.on("update-user-list", ({ users }) => {
     // if on friends list show on chat area
     updateUserList(users);
   });
 
+  // Start a conversation
   socket.on("friend-request", () => {
     // Change this later to just a function refresh
     window.location.reload();
   });
 
+  // User logging off
   socket.on("remove-user", ({ socketId }) => {
     let elToRemove;
     let frToRemove;
@@ -359,6 +363,7 @@ function DashChat(props) {
     };
   });
 
+  // User being called
   socket.on("call-made", async data => {
     // push only if no on page
     // let sitePage = window.location.href;
@@ -384,12 +389,7 @@ function DashChat(props) {
       return;
     }
 
-    if(data.added) {
-      add = true;
-    }
-    else {
-      add = false;
-    }
+    data.added ? add = true : add = false;
 
     if(!existingCall.includes(data.socket)) {
       existingCall.push(data.socket);
@@ -402,12 +402,15 @@ function DashChat(props) {
     if (getCalled) {
       if(existingCall.length === 1) { // Only confirm for first caller, other group members added freely
         let confirmed = window.confirm(
-          `User "Socket: ${data.socket}" wants to call you. Do accept this call?`
+          `User "Socket: ${data.from}" wants to call you. Do accept this call?`
         );
 
         if (!confirmed) {
           socket.emit("reject-call", {
-            from: data.socket
+            from: {
+              socket:data.socket, 
+              name:user
+            }
           });
 
           let index = existingCall.indexOf(data.socket);
@@ -493,9 +496,12 @@ function DashChat(props) {
   socket.on("hang-up", data => {
     console.log(data.from);
     let index = existingCall.indexOf(data.from);
-
-    connections[index].connection.close();
-    document.getElementById("remote-video" + (index+1)).classList.add("hide"); // Remove the video box of user hanging up
+  
+    if(connections[index]) {
+      connections[index].connection.close();
+      document.getElementById("remote-video" + (index+1)).classList.add("hide"); // Remove the video box of user hanging up
+    }
+    
 
     onCall = false;
 
@@ -503,16 +509,17 @@ function DashChat(props) {
       document.getElementById("video-space").classList.add("hide");
       document.getElementById("chat-panel").classList.remove("hide");
 
+      // replace this later on
       window.location.reload();
     }
   });
 
   socket.on("call-rejected", data => {
     if(data.inCall) {
-      alert(`User: "Socket: ${data.socket}" is current on a call.`);
+      alert(`User: "Socket: ${data.from}" is current on a call.`);
     }
     else {
-      alert(`User: "Socket: ${data.socket}" rejected your call.`); 
+      alert(`User: "Socket: ${data.from}" rejected your call.`); 
     }
 
     let index = existingCall.indexOf(data.socket);
@@ -576,20 +583,30 @@ function DashChat(props) {
   }
 
   function localStream() {
-    navigator.getUserMedia(
-      { video: true, audio: true },
-      stream => {
-        const localVideo = document.getElementById("local-video");
-        if (localVideo) {
-          localVideo.srcObject = stream;
-        }
-
-        getStreams(stream);  
-      },
-      error => {
-        console.warn(error.message);
-      }
+    navigator.getUserMedia = ( navigator.getUserMedia ||
+      navigator.webkitGetUserMedia ||
+      navigator.mozGetUserMedia ||
+      navigator.msGetUserMedia ||
+      navigator.mediaDevices.getUserMedia
     );
+
+    // firefox updated navigator.mediaDevices.getUserMedia
+
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then(
+        stream => {
+          const localVideo = document.getElementById("local-video");
+          if (localVideo) {
+            localVideo.srcObject = stream;
+          }
+
+          getStreams(stream);  
+        },
+        error => {
+          console.warn(error.message);
+        }
+      )
+      .catch(err => console.log(err));
   }
 
   function getStreams(stream) {
@@ -636,6 +653,8 @@ function DashChat(props) {
       let objDiv = document.getElementById("message-scroll");
       objDiv.scrollTop = objDiv.scrollHeight;
     }
+    
+    console.log("here");
   });
 
   function sendMessage(event) {
